@@ -1,5 +1,4 @@
-import { NextResponse } from "../../../../../../touch .gitignore/node_modules/next/server";
-
+import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const res = await fetch(

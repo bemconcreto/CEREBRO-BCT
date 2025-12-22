@@ -1,4 +1,4 @@
-import { NextResponse } from "../../../../../touch .gitignore/node_modules/next/server";
+import { NextResponse } from "next/server";
 import { supabaseApp } from "@/lib/supabaseApp";
 
 export async function GET() {
