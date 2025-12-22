@@ -16,9 +16,7 @@ export async function GET() {
       return NextResponse.json([]);
     }
 
-    const userIds = consultores
-      .map((c) => c.userId)
-      .filter(Boolean);
+    const userIds = consultores.map(c => c.userId).filter(Boolean);
 
     const { data: users, error: uError } = await supabaseConsultor
       .from("User")
@@ -27,9 +25,8 @@ export async function GET() {
 
     if (uError) throw uError;
 
-    const resultado = consultores.map((c) => {
-      const user = users?.find((u) => u.id === c.userId);
-
+    const resultado = consultores.map(c => {
+      const user = users?.find(u => u.id === c.userId);
       return {
         ...c,
         nome: user?.name ?? null,
@@ -40,9 +37,6 @@ export async function GET() {
     return NextResponse.json(resultado);
   } catch (err) {
     console.error("Erro Consultores:", err);
-    return NextResponse.json(
-      { error: "Erro ao buscar consultores" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Erro ao buscar consultores" }, { status: 500 });
   }
 }
