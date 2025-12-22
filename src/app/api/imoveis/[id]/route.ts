@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 function getIdFromUrl(req: Request) {
   const url = new URL(req.url);
   const parts = url.pathname.split("/");
