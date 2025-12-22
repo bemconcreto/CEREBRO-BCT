@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseApp } from "@/lib/supabaseApp";
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   const { data, error } = await supabaseApp
