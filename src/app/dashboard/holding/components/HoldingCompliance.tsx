@@ -17,19 +17,16 @@ export default function HoldingCompliance() {
         <Card
           title="Status do CNPJ"
           value="Ativo"
-          status="success"
         />
 
         <Card
           title="Reserva Protegida"
           value="20% travado"
-          status="success"
         />
 
         <Card
           title="Risco Operacional"
           value="Baixo"
-          status="success"
         />
       </div>
     </section>

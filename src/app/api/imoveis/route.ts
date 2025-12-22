@@ -11,7 +11,7 @@ export async function GET() {
     });
 
     // 🔒 Normaliza tudo para evitar NaN no frontend
-    const normalizados = imoveis.map((i) => ({
+    const normalizados = imoveis.map((i: any) => ({
       id: i.id,
       nome: i.nome,
       localizacao: i.localizacao,
