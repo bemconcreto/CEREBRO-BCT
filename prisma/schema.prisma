@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// /////////////////////////////////
+/// /////////////////////////////////
+model Holding {
+  id              Int     @id @default(autoincrement())
+  razaoSocial     String
+  cnpj            String  @unique
+  descricao       String?
+  patrimonioTotal Float
+  status          String  @default("ativo")
+
+  imoveis  Imovel[]
+  emissoes Emissao[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// /////////////////////////////////
+/// /////////////////////////////////
+model Imovel {
+  id Int @id @default(autoincrement())
+
+  holdingId Int
+  holding   Holding @relation(fields: [holdingId], references: [id])
+
+  nome           String
+  slug           String  @unique
+  localizacao    String
+  descricao      String?
+  valorCompra    Float
+  valorMercado   Float
+  percentualPool Float
+  status         String
+
+  documentos Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("Imovel")
+}
+
+/// /////////////////////////////////
+/// /////////////////////////////////
+model Emissao {
+  id          Int      @id @default(autoincrement())
+  holdingId   Int
+  ordem       Int
+  totalTokens BigInt
+  valorToken  Float
+  status      String
+  observacoes String?
+  createdAt   DateTime @default(now())
+  holding     Holding  @relation(fields: [holdingId], references: [id])
+  vendas      Venda[]
+}
+
+/// /////////////////////////////////
+/// /////////////////////////////////
+model Usuario {
+  id        Int        @id @default(autoincrement())
+  nome      String
+  email     String     @unique
+  tipo      String
+  status    String     @default("ativo")
+  createdAt DateTime   @default(now())
+  consultor Consultor?
+  vendas    Venda[]
+}
+
+/// /////////////////////////////////
+/// /////////////////////////////////
+model Consultor {
+  id                 Int      @id @default(autoincrement())
+  usuarioId          Int      @unique
+  codigoIndicacao    String   @unique
+  statusCertificacao String
+  totalVendas        Float    @default(0)
+  createdAt          DateTime @default(now())
+  usuario            Usuario  @relation(fields: [usuarioId], references: [id])
+  vendas             Venda[]
+}
+
+/// /////////////////////////////////
+/// /////////////////////////////////
+model Venda {
+  id           Int        @id @default(autoincrement())
+  emissaoId    Int
+  investidorId Int
+  consultorId  Int?
+  quantidade   BigInt
+  valorTotal   Float
+  status       String
+  createdAt    DateTime   @default(now())
+  consultor    Consultor? @relation(fields: [consultorId], references: [id])
+  emissao      Emissao    @relation(fields: [emissaoId], references: [id])
+  investidor   Usuario    @relation(fields: [investidorId], references: [id])
+}
