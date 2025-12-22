@@ -13,35 +13,23 @@ export default function DashboardLayout({
   const router = useRouter();
 
   useEffect(() => {
-    async function checkAccess() {
-      const { data: sessionData } = await supabase.auth.getSession();
+    async function check() {
+      const { data } = await supabase.auth.getSession();
 
-      if (!sessionData.session) {
+      if (!data.session) {
         router.replace("/login");
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("two_factor_ok")
-        .eq("id", sessionData.session.user.id)
-        .single();
-
-      if (!profile?.two_factor_ok) {
-        router.replace("/confirmar-codigo");
       }
     }
 
-    checkAccess();
+    check();
   }, [router]);
 
   return (
     <>
       <Sidebar />
-
       <main
         style={{
-          marginLeft: 260, // 👈 ESSENCIAL (mantido)
+          marginLeft: 260,
           padding: 32,
           minHeight: "100vh",
           background: "#F6F4EF",

@@ -7,44 +7,25 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState("");
   const [erro, setErro] = useState("");
 
   async function handleLogin() {
     setLoading(true);
     setErro("");
-    setMsg("");
 
-    // 1️⃣ Valida e-mail + senha
-    const { error: loginError } =
-      await supabase.auth.signInWithPassword({
-        email,
-        password: senha,
-      });
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password: senha,
+    });
 
-    if (loginError) {
+    if (error || !data.session) {
       setErro("E-mail ou senha inválidos");
       setLoading(false);
       return;
     }
 
-    // 2️⃣ Envia código OTP (6 dígitos) por e-mail
-    const { error: otpError } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        shouldCreateUser: false,
-      },
-    });
-
-    setLoading(false);
-
-    if (otpError) {
-      setErro("Erro ao enviar código de confirmação");
-      return;
-    }
-
-    // 3️⃣ Redireciona para confirmação
-    window.location.href = "/confirmar-codigo";
+    // ✅ LOGIN DIRETO — SEM OTP
+    window.location.href = "/dashboard";
   }
 
   return (
@@ -72,7 +53,6 @@ export default function LoginPage() {
         />
 
         {erro && <p style={styles.error}>{erro}</p>}
-        {msg && <p style={styles.success}>{msg}</p>}
 
         <button
           onClick={handleLogin}
@@ -82,7 +62,7 @@ export default function LoginPage() {
             opacity: loading ? 0.6 : 1,
           }}
         >
-          {loading ? "Validando..." : "Entrar"}
+          {loading ? "Entrando..." : "Entrar"}
         </button>
 
         <span style={styles.footer}>
@@ -143,10 +123,6 @@ const styles: Record<string, React.CSSProperties> = {
   },
   error: {
     color: "#C0392B",
-    fontSize: 13,
-  },
-  success: {
-    color: "#2ECC71",
     fontSize: 13,
   },
   footer: {
