@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 /* ================= TYPES ================= */
 
 type WalletSaldo = {
-  saldo_bct: number | null;
+  saldo_tokens: number | null;
 };
 
 type Usuario = {
@@ -59,8 +59,8 @@ export default function UsuariosPage() {
 
     // 🔃 ORDENAÇÃO
     lista.sort((a, b) => {
-      const saldoA = a.wallet_saldos?.[0]?.saldo_bct ?? 0;
-      const saldoB = b.wallet_saldos?.[0]?.saldo_bct ?? 0;
+      const saldoA = a.wallet_saldos?.[0]?.saldo_tokens ?? 0;
+      const saldoB = b.wallet_saldos?.[0]?.saldo_tokens ?? 0;
 
       switch (ordenacao) {
         case "bct_desc":
@@ -214,7 +214,7 @@ export default function UsuariosPage() {
                     ? `${u.wallet_address.slice(0, 6)}...${u.wallet_address.slice(-4)}`
                     : "—"}
                 </td>
-                <td>{u.wallet_saldos?.[0]?.saldo_bct ?? 0}</td>
+                <td>{u.wallet_saldos?.[0]?.saldo_tokens ?? 0}</td>
                 <td>
                   {new Date(u.created_at).toLocaleDateString("pt-BR")}
                 </td>
