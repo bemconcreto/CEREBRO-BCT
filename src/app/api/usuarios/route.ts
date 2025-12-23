@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const { data, error } = await supabaseApp
-      .from("profiles")
+      .from("cerebro_usuarios")
       .select(`
         id,
         nome,
