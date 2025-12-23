@@ -15,7 +15,7 @@ export async function GET() {
         telefone,
         wallet_address,
         created_at,
-        wallet_saldos ( saldo_bct )
+        wallet_saldos ( saldo_tokens )
       `)
       .order("created_at", { ascending: false });
 
