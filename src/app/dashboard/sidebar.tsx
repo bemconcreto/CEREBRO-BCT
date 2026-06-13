@@ -43,6 +43,7 @@ export default function Sidebar() {
         }}
       >
         <Link href="/dashboard" style={linkStyle}>Visão Geral</Link>
+        <Link href="/dashboard/preco" style={linkStyle}>Preço do BEM</Link>
         <Link href="/dashboard/holding" style={linkStyle}>Holding</Link>
         <Link href="/dashboard/imoveis" style={linkStyle}>Imóveis</Link>
         <Link href="/dashboard/emissoes" style={linkStyle}>Emissões</Link>

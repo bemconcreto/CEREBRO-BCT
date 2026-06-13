@@ -41,12 +41,28 @@ model Imovel {
   percentualPool Float
   status         String
 
+  imagemUrl        String?
+  roiProjetado     Float?
+  roiRealizado     Float?
+  dataAquisicao    DateTime?
+  statusDocumental String?
+
   documentos Json?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("Imovel")
+}
+
+/// /////////////////////////////////
+/// /////////////////////////////////
+model TokenPrice {
+  id            Int      @id @default(1)
+  precoUsd      Float
+  cotacaoUsdBrl Float
+  updatedAt     DateTime @updatedAt
+  updatedBy     String?
 }
 
 /// /////////////////////////////////
