@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "tailwindcss";
+
 /* ======================================================
    BEM CONCRETO — DESIGN TOKENS
    (mesma paleta/fontes do APP-BCT e do LANDPAGE-BCT)
