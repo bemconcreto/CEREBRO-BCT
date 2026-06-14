@@ -1,6 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Users, UserPlus, CalendarDays, Search } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
 
 /* ================= TYPES ================= */
 
@@ -105,157 +117,116 @@ export default function UsuariosPage() {
   /* ================= RENDER ================= */
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+    <div className="flex flex-col gap-8">
       {/* HEADER */}
       <div>
-        <h1 style={{ fontSize: 24, fontWeight: 600 }}>Usuários</h1>
-        <p style={{ fontSize: 14, color: "#666" }}>
-          Base real de usuários do App-BCT
-        </p>
+        <h1 className="text-2xl font-bold text-[#101820] tracking-tight">Usuários</h1>
+        <p className="text-sm text-[#6B7280] mt-1">Base real de usuários do App-BCT</p>
       </div>
 
       {/* CARDS */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 16,
-        }}
-      >
-        <Card title="Total de Usuários" value={total.toString()} />
-        <Card title="Novos no Mês" value={novosMes.toString()} />
-        <Card title="Novos na Semana" value={novosSemana.toString()} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <KpiCard icon={Users} title="Total de Usuários" value={total.toString()} />
+        <KpiCard icon={UserPlus} title="Novos no Mês" value={novosMes.toString()} />
+        <KpiCard icon={CalendarDays} title="Novos na Semana" value={novosSemana.toString()} />
       </div>
 
       {/* BUSCA + ORDENAÇÃO */}
-      <div
-        style={{
-          display: "flex",
-          gap: 12,
-          alignItems: "center",
-          flexWrap: "wrap",
-        }}
-      >
-        <input
-          type="text"
-          placeholder="Buscar por nome, CPF, telefone ou carteira…"
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          style={{
-            flex: 1,
-            minWidth: 260,
-            padding: 10,
-            borderRadius: 8,
-            border: "1px solid #ddd",
-          }}
-        />
+      <div className="flex gap-3 items-center flex-wrap">
+        <div className="relative flex-1 min-w-65">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" />
+          <Input
+            type="text"
+            placeholder="Buscar por nome, CPF, telefone ou carteira…"
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            className="pl-9"
+          />
+        </div>
 
-        <select
+        <Select
           value={ordenacao}
-          onChange={(e) => setOrdenacao(e.target.value as any)}
-          style={{
-            padding: 10,
-            borderRadius: 8,
-            border: "1px solid #ddd",
-          }}
+          onChange={(e) => setOrdenacao(e.target.value as typeof ordenacao)}
+          className="w-auto"
         >
           <option value="data_desc">Cadastro (mais recentes)</option>
           <option value="data_asc">Cadastro (mais antigos)</option>
           <option value="bct_desc">BCT (maior saldo)</option>
           <option value="bct_asc">BCT (menor saldo)</option>
-        </select>
+        </Select>
       </div>
 
       {/* TABELA */}
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: 12,
-          padding: 24,
-        }}
-      >
-        <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16 }}>
-          Lista de Usuários
-        </h2>
+      <Card>
+        <CardHeader>
+          <CardTitle>Lista de Usuários</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nome</TableHead>
+                <TableHead>CPF</TableHead>
+                <TableHead>Telefone</TableHead>
+                <TableHead>Carteira</TableHead>
+                <TableHead>BCT</TableHead>
+                <TableHead>Cadastro</TableHead>
+              </TableRow>
+            </TableHeader>
 
-        <table width="100%" cellPadding={10} style={{ borderCollapse: "collapse" }}>
-          <thead>
-            <tr
-              style={{
-                textAlign: "left",
-                fontSize: 13,
-                color: "#666",
-                borderBottom: "1px solid #eee",
-              }}
-            >
-              <th>Nome</th>
-              <th>CPF</th>
-              <th>Telefone</th>
-              <th>Carteira</th>
-              <th>BCT</th>
-              <th>Cadastro</th>
-            </tr>
-          </thead>
+            <TableBody>
+              {usuariosFiltrados.map((u) => (
+                <TableRow key={u.id}>
+                  <TableCell className="font-medium text-[#101820]">{u.nome ?? "—"}</TableCell>
+                  <TableCell>{u.cpf ?? "—"}</TableCell>
+                  <TableCell>{u.telefone ?? "—"}</TableCell>
+                  <TableCell className="font-mono text-xs">
+                    {u.wallet_address
+                      ? `${u.wallet_address.slice(0, 6)}...${u.wallet_address.slice(-4)}`
+                      : "—"}
+                  </TableCell>
+                  <TableCell>{u.wallet_saldos?.[0]?.saldo_tokens ?? 0}</TableCell>
+                  <TableCell>{new Date(u.created_at).toLocaleDateString("pt-BR")}</TableCell>
+                </TableRow>
+              ))}
 
-          <tbody>
-            {usuariosFiltrados.map((u) => (
-              <tr
-                key={u.id}
-                style={{
-                  fontSize: 14,
-                  borderBottom: "1px solid #f0f0f0",
-                }}
-              >
-                <td><strong>{u.nome ?? "—"}</strong></td>
-                <td>{u.cpf ?? "—"}</td>
-                <td>{u.telefone ?? "—"}</td>
-                <td style={{ fontFamily: "monospace" }}>
-                  {u.wallet_address
-                    ? `${u.wallet_address.slice(0, 6)}...${u.wallet_address.slice(-4)}`
-                    : "—"}
-                </td>
-                <td>{u.wallet_saldos?.[0]?.saldo_tokens ?? 0}</td>
-                <td>
-                  {new Date(u.created_at).toLocaleDateString("pt-BR")}
-                </td>
-              </tr>
-            ))}
-
-            {usuariosFiltrados.length === 0 && (
-              <tr>
-                <td
-                  colSpan={6}
-                  style={{
-                    textAlign: "center",
-                    color: "#999",
-                    padding: 20,
-                  }}
-                >
-                  Nenhum usuário encontrado
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              {usuariosFiltrados.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
+                    Nenhum usuário encontrado
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
 /* ================= CARD ================= */
 
-function Card({ title, value }: { title: string; value: string }) {
+function KpiCard({
+  icon: Icon,
+  title,
+  value,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  value: string;
+}) {
   return (
-    <div
-      style={{
-        background: "#fff",
-        borderRadius: 12,
-        padding: 20,
-        boxShadow: "0 4px 12px rgba(0,0,0,.05)",
-      }}
-    >
-      <p style={{ fontSize: 13, color: "#666" }}>{title}</p>
-      <h3 style={{ fontSize: 22, fontWeight: 600 }}>{value}</h3>
-    </div>
+    <Card>
+      <CardContent className="flex items-center gap-4">
+        <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+          <Icon className="w-5 h-5" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm text-muted-foreground truncate">{title}</p>
+          <p className="text-2xl font-bold text-[#101820] truncate">{value}</p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

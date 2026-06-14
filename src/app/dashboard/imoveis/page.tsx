@@ -4,13 +4,7 @@ import ImoveisGestao from "./ImoveisGestao";
 
 export default function ImoveisPage() {
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 32,
-      }}
-    >
+    <div className="flex flex-col gap-8">
       {/* TÍTULO E DESCRIÇÃO */}
       <ImoveisHeader />
 

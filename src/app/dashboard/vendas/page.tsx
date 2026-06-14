@@ -1,6 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { DollarSign, ShoppingCart, UserCheck, Coins, CalendarDays, Receipt } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 type Venda = {
   id: string;
@@ -38,113 +50,100 @@ export default function VendasPage() {
     });
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+    <div className="flex flex-col gap-8">
       {/* HEADER */}
       <div>
-        <h1 style={{ fontSize: 24, fontWeight: 600 }}>Vendas</h1>
-        <p style={{ fontSize: 14, color: "#666" }}>
-          Controle completo das vendas reais de BCT
-        </p>
+        <h1 className="text-2xl font-bold text-[#101820] tracking-tight">Vendas</h1>
+        <p className="text-sm text-[#6B7280] mt-1">Controle completo das vendas reais de BCT</p>
       </div>
 
       {/* CARDS */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 16,
-        }}
-      >
-        <Card
-          title="Faturamento Total"
-          value={formatBRL(kpis?.faturamento_total ?? 0)}
-        />
-        <Card
-          title="Total de Vendas"
-          value={(kpis?.total_vendas ?? 0).toString()}
-        />
-        <Card title="Consultores Ativos" value="—" />
-        <Card
-          title="BCT Vendidos"
-          value={(kpis?.bct_vendidos ?? 0).toLocaleString("pt-BR")}
-        />
-        <Card
-          title="Vendas do Mês"
-          value={formatBRL(kpis?.vendas_mes ?? 0)}
-        />
-        <Card
-          title="Ticket Médio"
-          value={formatBRL(kpis?.ticket_medio ?? 0)}
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <KpiCard icon={DollarSign} title="Faturamento Total" value={formatBRL(kpis?.faturamento_total ?? 0)} />
+        <KpiCard icon={ShoppingCart} title="Total de Vendas" value={(kpis?.total_vendas ?? 0).toString()} />
+        <KpiCard icon={UserCheck} title="Consultores Ativos" value="—" />
+        <KpiCard icon={Coins} title="BCT Vendidos" value={(kpis?.bct_vendidos ?? 0).toLocaleString("pt-BR")} />
+        <KpiCard icon={CalendarDays} title="Vendas do Mês" value={formatBRL(kpis?.vendas_mes ?? 0)} />
+        <KpiCard icon={Receipt} title="Ticket Médio" value={formatBRL(kpis?.ticket_medio ?? 0)} />
       </div>
 
       {/* TABELA */}
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: 12,
-          padding: 24,
-          boxShadow: "0 4px 12px rgba(0,0,0,.05)",
-        }}
-      >
-        <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16 }}>
-          Histórico de Vendas
-        </h2>
+      <Card>
+        <CardHeader>
+          <CardTitle>Histórico de Vendas</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Data</TableHead>
+                <TableHead>Investidor</TableHead>
+                <TableHead>Consultor</TableHead>
+                <TableHead>BCT</TableHead>
+                <TableHead>Valor (R$)</TableHead>
+                <TableHead>Emissão</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
 
-        <table width="100%" cellPadding={10}>
-          <thead>
-            <tr style={{ textAlign: "left", fontSize: 13, color: "#666" }}>
-              <th>Data</th>
-              <th>Investidor</th>
-              <th>Consultor</th>
-              <th>BCT</th>
-              <th>Valor (R$)</th>
-              <th>Emissão</th>
-              <th>Status</th>
-            </tr>
-          </thead>
+            <TableBody>
+              {vendas.map((v) => (
+                <LinhaVenda
+                  key={v.id}
+                  data={new Date(v.created_at).toLocaleDateString("pt-BR")}
+                  investidor="—"
+                  consultor="—"
+                  bct={v.tokens.toLocaleString("pt-BR")}
+                  valor={formatBRL(v.valor_pago)}
+                  emissao="1ª Emissão"
+                  status={
+                    v.status === "paid"
+                      ? "Pago"
+                      : v.status === "pending"
+                      ? "Pendente"
+                      : "Cancelado"
+                  }
+                />
+              ))}
 
-          <tbody>
-            {vendas.map((v) => (
-              <LinhaVenda
-                key={v.id}
-                data={new Date(v.created_at).toLocaleDateString("pt-BR")}
-                investidor="—"
-                consultor="—"
-                bct={v.tokens.toLocaleString("pt-BR")}
-                valor={formatBRL(v.valor_pago)}
-                emissao="1ª Emissão"
-                status={
-                  v.status === "paid"
-                    ? "Pago"
-                    : v.status === "pending"
-                    ? "Pendente"
-                    : "Cancelado"
-                }
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
+              {vendas.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-6">
+                    Nenhuma venda encontrada
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
 /* ================= COMPONENTES ================= */
 
-function Card({ title, value }: { title: string; value: string }) {
+function KpiCard({
+  icon: Icon,
+  title,
+  value,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  value: string;
+}) {
   return (
-    <div
-      style={{
-        background: "#fff",
-        borderRadius: 12,
-        padding: 20,
-        boxShadow: "0 4px 12px rgba(0,0,0,.05)",
-      }}
-    >
-      <p style={{ fontSize: 13, color: "#666" }}>{title}</p>
-      <h3 style={{ fontSize: 22, fontWeight: 600 }}>{value}</h3>
-    </div>
+    <Card>
+      <CardContent className="flex items-center gap-4">
+        <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+          <Icon className="w-5 h-5" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm text-muted-foreground truncate">{title}</p>
+          <p className="text-2xl font-bold text-[#101820] truncate">{value}</p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -165,33 +164,25 @@ function LinhaVenda({
   emissao: string;
   status: "Pago" | "Pendente" | "Cancelado";
 }) {
-  const statusStyle = {
-    Pago: { bg: "#EAF6EF", color: "#2E7D32" },
-    Pendente: { bg: "#FFF3CD", color: "#856404" },
-    Cancelado: { bg: "#FDECEA", color: "#C0392B" },
+  const statusClass = {
+    Pago: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    Pendente: "bg-amber-50 text-amber-700 border-amber-200",
+    Cancelado: "bg-red-50 text-red-700 border-red-200",
   }[status];
 
   return (
-    <tr style={{ fontSize: 14, borderBottom: "1px solid #f0f0f0" }}>
-      <td>{data}</td>
-      <td><strong>{investidor}</strong></td>
-      <td>{consultor}</td>
-      <td>{bct}</td>
-      <td>{valor}</td>
-      <td>{emissao}</td>
-      <td>
-        <span
-          style={{
-            padding: "4px 10px",
-            borderRadius: 12,
-            fontSize: 12,
-            background: statusStyle.bg,
-            color: statusStyle.color,
-          }}
-        >
+    <TableRow>
+      <TableCell>{data}</TableCell>
+      <TableCell className="font-medium text-[#101820]">{investidor}</TableCell>
+      <TableCell>{consultor}</TableCell>
+      <TableCell>{bct}</TableCell>
+      <TableCell>{valor}</TableCell>
+      <TableCell>{emissao}</TableCell>
+      <TableCell>
+        <Badge variant="outline" className={cn("font-medium", statusClass)}>
           {status}
-        </span>
-      </td>
-    </tr>
+        </Badge>
+      </TableCell>
+    </TableRow>
   );
 }

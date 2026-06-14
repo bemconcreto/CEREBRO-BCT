@@ -1,16 +1,16 @@
+import { Badge } from "@/components/ui/badge";
+
 export default function HoldingHeader() {
   return (
-    <div className="space-y-1">
-      <h1 className="text-2xl font-semibold">Holding (CNPJ)</h1>
-      <p className="text-neutral-700">
+    <div>
+      <h1 className="text-2xl font-bold text-[#101820] tracking-tight">Holding (CNPJ)</h1>
+      <p className="text-sm text-[#6B7280] mt-1">
         Bem Concreto Empreendimentos Imobiliários LTDA
       </p>
 
-      <div className="flex gap-3 text-sm">
-        <span>CNPJ: 00.000.000/0001-00</span>
-        <span className="px-2 py-0.5 rounded-full bg-[#CBA35C] text-white">
-          ATIVA
-        </span>
+      <div className="flex items-center gap-3 mt-3">
+        <span className="text-sm text-[#6B7280]">CNPJ: 00.000.000/0001-00</span>
+        <Badge className="bg-[#CBA35C] text-white">ATIVA</Badge>
       </div>
     </div>
   );

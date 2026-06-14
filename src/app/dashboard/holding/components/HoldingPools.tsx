@@ -29,17 +29,9 @@ export default function HoldingPools() {
 
   return (
     <section>
-      <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16 }}>
-        Pools Estratégicas
-      </h2>
+      <h2 className="text-lg font-semibold text-[#101820] mb-4">Pools Estratégicas</h2>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 20,
-        }}
-      >
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card
           title="Pool de Imóveis"
           value={`30% • ${format(data.poolImoveis)}`}

@@ -1,6 +1,20 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { UserCheck, BadgeCheck, Coins, TrendingUp, Search } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 type Consultor = {
   id: string;
@@ -100,157 +114,129 @@ export default function ConsultoresPage() {
     .reduce((sum, c) => sum + (c.vendas_total ?? 0), 0);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+    <div className="flex flex-col gap-8">
       {/* HEADER */}
       <div>
-        <h1 style={{ fontSize: 24, fontWeight: 600 }}>Consultores</h1>
-        <p style={{ fontSize: 14, color: "#666" }}>
+        <h1 className="text-2xl font-bold text-[#101820] tracking-tight">Consultores</h1>
+        <p className="text-sm text-[#6B7280] mt-1">
           Rede de consultores certificados e desempenho comercial
         </p>
       </div>
 
       {/* CARDS */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 16,
-        }}
-      >
-        <Card title="Total de Consultores" value={total.toString()} />
-        <Card title="Certificados" value={certificados.toString()} />
-        <Card
-          title="Vendas Totais (R$)"
-          value={`R$ ${vendasTotais.toLocaleString("pt-BR")}`}
-        />
-        <Card
-          title="Vendas no Mês (R$)"
-          value={`R$ ${vendasMes.toLocaleString("pt-BR")}`}
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <KpiCard icon={UserCheck} title="Total de Consultores" value={total.toString()} />
+        <KpiCard icon={BadgeCheck} title="Certificados" value={certificados.toString()} />
+        <KpiCard icon={Coins} title="Vendas Totais (R$)" value={`R$ ${vendasTotais.toLocaleString("pt-BR")}`} />
+        <KpiCard icon={TrendingUp} title="Vendas no Mês (R$)" value={`R$ ${vendasMes.toLocaleString("pt-BR")}`} />
       </div>
 
       {/* TABELA */}
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: 12,
-          padding: 24,
-          boxShadow: "0 4px 12px rgba(0,0,0,.05)",
-        }}
-      >
-        {/* BUSCA + ORDENAÇÃO */}
-        <div
-          style={{
-            display: "flex",
-            gap: 12,
-            marginBottom: 16,
-            flexWrap: "wrap",
-          }}
-        >
-          <input
-            placeholder="Buscar por nome, CPF ou telefone"
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            style={{
-              padding: 10,
-              borderRadius: 8,
-              border: "1px solid #ddd",
-              minWidth: 260,
-            }}
-          />
+      <Card>
+        <CardHeader>
+          <CardTitle>Lista de Consultores</CardTitle>
 
-          <select
-            value={ordenacao}
-            onChange={(e) =>
-              setOrdenacao(e.target.value as Ordenacao)
-            }
-            style={{
-              padding: 10,
-              borderRadius: 8,
-              border: "1px solid #ddd",
-            }}
-          >
-            <option value="cadastro_desc">Mais recentes</option>
-            <option value="nome_asc">Nome (A–Z)</option>
-            <option value="nome_desc">Nome (Z–A)</option>
-            <option value="vendas_desc">Mais vendas</option>
-          </select>
-        </div>
+          {/* BUSCA + ORDENAÇÃO */}
+          <div className="flex gap-3 flex-wrap mt-2">
+            <div className="relative flex-1 min-w-65">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" />
+              <Input
+                placeholder="Buscar por nome, CPF ou telefone"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                className="pl-9"
+              />
+            </div>
 
-        <table width="100%" cellPadding={10}>
-          <thead>
-            <tr style={{ textAlign: "left", fontSize: 13, color: "#666" }}>
-              <th>Consultor</th>
-              <th>CPF</th>
-              <th>Telefone</th>
-              <th>Status</th>
-              <th>Vendas (R$)</th>
-              <th>Qtd. Vendas</th>
-              <th>Cadastro</th>
-            </tr>
-          </thead>
+            <Select
+              value={ordenacao}
+              onChange={(e) => setOrdenacao(e.target.value as Ordenacao)}
+              className="w-auto"
+            >
+              <option value="cadastro_desc">Mais recentes</option>
+              <option value="nome_asc">Nome (A–Z)</option>
+              <option value="nome_desc">Nome (Z–A)</option>
+              <option value="vendas_desc">Mais vendas</option>
+            </Select>
+          </div>
+        </CardHeader>
 
-          <tbody>
-            {consultoresFiltrados.map((c) => (
-              <tr
-                key={c.id}
-                style={{ fontSize: 14, borderBottom: "1px solid #eee" }}
-              >
-                <td><strong>{c.nome}</strong></td>
-                <td>{c.cpf ?? "—"}</td>
-                <td>{c.telefone ?? "—"}</td>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Consultor</TableHead>
+                <TableHead>CPF</TableHead>
+                <TableHead>Telefone</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Vendas (R$)</TableHead>
+                <TableHead>Qtd. Vendas</TableHead>
+                <TableHead>Cadastro</TableHead>
+              </TableRow>
+            </TableHeader>
 
-                <td>
-                  <span
-                    style={{
-                      padding: "4px 10px",
-                      borderRadius: 12,
-                      fontSize: 12,
-                      fontWeight: 500,
-                      background:
+            <TableBody>
+              {consultoresFiltrados.map((c) => (
+                <TableRow key={c.id}>
+                  <TableCell className="font-medium text-[#101820]">{c.nome}</TableCell>
+                  <TableCell>{c.cpf ?? "—"}</TableCell>
+                  <TableCell>{c.telefone ?? "—"}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        "font-medium",
                         c.status === "Certificado"
-                          ? "#EAF6EF"
-                          : "#FFF3CD",
-                      color:
-                        c.status === "Certificado"
-                          ? "#2E7D32"
-                          : "#856404",
-                    }}
-                  >
-                    {c.status ?? "Pendente"}
-                  </span>
-                </td>
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                          : "bg-amber-50 text-amber-700 border-amber-200"
+                      )}
+                    >
+                      {c.status ?? "Pendente"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>R$ {(c.vendas_total ?? 0).toLocaleString("pt-BR")}</TableCell>
+                  <TableCell>{c.qtd_vendas ?? 0}</TableCell>
+                  <TableCell>{new Date(c.createdAt).toLocaleDateString("pt-BR")}</TableCell>
+                </TableRow>
+              ))}
 
-                <td>
-                  R$ {(c.vendas_total ?? 0).toLocaleString("pt-BR")}
-                </td>
-                <td>{c.qtd_vendas ?? 0}</td>
-                <td>
-                  {new Date(c.createdAt).toLocaleDateString("pt-BR")}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+              {consultoresFiltrados.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-6">
+                    Nenhum consultor encontrado
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
 /* ===== CARD ===== */
 
-function Card({ title, value }: { title: string; value: string }) {
+function KpiCard({
+  icon: Icon,
+  title,
+  value,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  value: string;
+}) {
   return (
-    <div
-      style={{
-        background: "#fff",
-        borderRadius: 12,
-        padding: 20,
-        boxShadow: "0 4px 12px rgba(0,0,0,.05)",
-      }}
-    >
-      <p style={{ fontSize: 13, color: "#666" }}>{title}</p>
-      <h3 style={{ fontSize: 22, fontWeight: 600 }}>{value}</h3>
-    </div>
+    <Card>
+      <CardContent className="flex items-center gap-4">
+        <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+          <Icon className="w-5 h-5" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm text-muted-foreground truncate">{title}</p>
+          <p className="text-2xl font-bold text-[#101820] truncate">{value}</p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,6 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { DollarSign, TrendingUp, Coins } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type Preco = {
   precoUsd: number;
@@ -16,6 +22,7 @@ export default function PrecoPage() {
   const [cotacaoUsdBrl, setCotacaoUsdBrl] = useState(0);
   const [salvando, setSalvando] = useState(false);
   const [mensagem, setMensagem] = useState<string | null>(null);
+  const [erro, setErro] = useState(false);
 
   useEffect(() => {
     fetch("/api/preco")
@@ -31,6 +38,7 @@ export default function PrecoPage() {
   async function salvar() {
     setSalvando(true);
     setMensagem(null);
+    setErro(false);
 
     try {
       const res = await fetch("/api/preco", {
@@ -42,6 +50,7 @@ export default function PrecoPage() {
       const data = await res.json();
 
       if (!res.ok) {
+        setErro(true);
         setMensagem(data.error || "Erro ao salvar preço");
         return;
       }
@@ -49,6 +58,7 @@ export default function PrecoPage() {
       setPreco(data);
       setMensagem("Preço atualizado com sucesso.");
     } catch {
+      setErro(true);
       setMensagem("Erro ao salvar preço");
     } finally {
       setSalvando(false);
@@ -58,127 +68,99 @@ export default function PrecoPage() {
   const precoBrl = precoUsd * cotacaoUsdBrl;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+    <div className="flex flex-col gap-8">
       <div>
-        <h1 style={{ fontSize: 28, fontWeight: 600, color: "#101820" }}>
-          Preço do BEM
-        </h1>
-        <p style={{ marginTop: 8, color: "#6B6B6B" }}>
+        <h1 className="text-2xl font-bold text-[#101820] tracking-tight">Preço do BEM</h1>
+        <p className="text-sm text-[#6B7280] mt-1">
           Define o preço do token BEM (BCT) usado em todo o ecossistema
           (APP, Consultor, Landpage e Certificação).
         </p>
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 24,
-        }}
-      >
-        <Card title="Preço atual (USD)" value={`US$ ${precoUsd.toFixed(2)}`} />
-        <Card title="Cotação USD/BRL" value={`R$ ${cotacaoUsdBrl.toFixed(2)}`} />
-        <Card title="Preço atual (BRL)" value={`R$ ${precoBrl.toFixed(2)}`} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <KpiCard icon={DollarSign} title="Preço atual (USD)" value={`US$ ${precoUsd.toFixed(2)}`} />
+        <KpiCard icon={TrendingUp} title="Cotação USD/BRL" value={`R$ ${cotacaoUsdBrl.toFixed(2)}`} />
+        <KpiCard icon={Coins} title="Preço atual (BRL)" value={`R$ ${precoBrl.toFixed(2)}`} />
       </div>
 
-      <div style={card}>
-        <h2 style={title}>Atualizar preço</h2>
+      <Card className="max-w-120">
+        <CardHeader>
+          <CardTitle>Atualizar preço</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-1.5">
+            <Label>Preço do BEM (USD)</Label>
+            <Input
+              type="number"
+              step="0.01"
+              value={precoUsd}
+              onChange={(e) => setPrecoUsd(Number(e.target.value))}
+            />
+          </div>
 
-        <CampoNumero
-          label="Preço do BEM (USD)"
-          value={precoUsd}
-          onChange={setPrecoUsd}
-        />
+          <div className="space-y-1.5">
+            <Label>Cotação USD/BRL</Label>
+            <Input
+              type="number"
+              step="0.01"
+              value={cotacaoUsdBrl}
+              onChange={(e) => setCotacaoUsdBrl(Number(e.target.value))}
+            />
+          </div>
 
-        <CampoNumero
-          label="Cotação USD/BRL"
-          value={cotacaoUsdBrl}
-          onChange={setCotacaoUsdBrl}
-        />
-
-        <p style={{ marginBottom: 16, color: "#6B6B6B", fontSize: 14 }}>
-          Preço resultante em BRL:{" "}
-          <strong>R$ {precoBrl.toFixed(2)}</strong>
-        </p>
-
-        <button style={btnPrimary} onClick={salvar} disabled={salvando}>
-          {salvando ? "Salvando..." : "Salvar"}
-        </button>
-
-        {mensagem && <p style={{ marginTop: 12 }}>{mensagem}</p>}
-
-        {preco && (
-          <p style={{ marginTop: 16, color: "#999", fontSize: 13 }}>
-            Última atualização: {new Date(preco.updatedAt).toLocaleString("pt-BR")}
-            {preco.updatedBy ? ` por ${preco.updatedBy}` : ""}
+          <p className="text-sm text-[#6B7280]">
+            Preço resultante em BRL: <strong className="text-[#101820]">R$ {precoBrl.toFixed(2)}</strong>
           </p>
-        )}
-      </div>
+
+          <Button onClick={salvar} disabled={salvando}>
+            {salvando ? "Salvando..." : "Salvar"}
+          </Button>
+
+          {mensagem && (
+            <div
+              className={cn(
+                "flex items-center gap-2 rounded-xl border px-4 py-3 text-sm",
+                erro
+                  ? "border-red-200 bg-red-50 text-red-700"
+                  : "border-emerald-200 bg-emerald-50 text-emerald-700"
+              )}
+            >
+              {mensagem}
+            </div>
+          )}
+
+          {preco && (
+            <p className="text-xs text-[#6B7280]">
+              Última atualização: {new Date(preco.updatedAt).toLocaleString("pt-BR")}
+              {preco.updatedBy ? ` por ${preco.updatedBy}` : ""}
+            </p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
-function Card({ title, value }: { title: string; value: string }) {
-  return (
-    <div
-      style={{
-        background: "#FFFFFF",
-        borderRadius: 12,
-        padding: 24,
-        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-        minWidth: 220,
-      }}
-    >
-      <p style={{ fontSize: 13, color: "#6B6B6B" }}>{title}</p>
-      <p style={{ marginTop: 8, fontSize: 22, fontWeight: 600, color: "#101820" }}>
-        {value}
-      </p>
-    </div>
-  );
-}
-
-function CampoNumero({
-  label,
+function KpiCard({
+  icon: Icon,
+  title,
   value,
-  onChange,
 }: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  value: string;
 }) {
   return (
-    <div style={{ marginBottom: 12 }}>
-      <label>{label}</label>
-      <input
-        type="number"
-        step="0.01"
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        style={input}
-      />
-    </div>
+    <Card>
+      <CardContent className="flex items-center gap-4">
+        <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+          <Icon className="w-5 h-5" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm text-muted-foreground truncate">{title}</p>
+          <p className="text-2xl font-bold text-[#101820] truncate">{value}</p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
-
-const card = {
-  background: "#fff",
-  padding: 24,
-  borderRadius: 12,
-  maxWidth: 480,
-};
-
-const title = { fontSize: 18, fontWeight: 600, marginBottom: 16 };
-
-const btnPrimary = {
-  padding: "8px 16px",
-  background: "#CBA35C",
-  color: "#fff",
-  border: "none",
-  borderRadius: 8,
-  cursor: "pointer",
-};
-
-const input = {
-  width: "100%",
-  padding: 8,
-};

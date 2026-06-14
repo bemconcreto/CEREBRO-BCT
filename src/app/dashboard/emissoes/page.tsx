@@ -1,6 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Coins, Wallet, Layers, PieChart } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 type Overview = {
   faturamentoTotal: number;
@@ -24,85 +37,51 @@ export default function EmissoesPage() {
   const faturamento = data?.faturamentoTotal || 0;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+    <div className="flex flex-col gap-8">
       {/* HEADER */}
       <div>
-        <h1 style={{ fontSize: 24, fontWeight: 600 }}>
-          Emissões do BCT
-        </h1>
-        <p style={{ color: "#666", fontSize: 14 }}>
+        <h1 className="text-2xl font-bold text-[#101820] tracking-tight">Emissões do BCT</h1>
+        <p className="text-sm text-[#6B7280] mt-1">
           Gestão das emissões de token vinculadas à holding
         </p>
       </div>
 
       {/* CARDS DE TOPO */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 16,
-        }}
-      >
-        <Card title="Emissão Atual" value="1ª Emissão" sub="10.000.000 BCT" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <KpiCard icon={Coins} title="Emissão Atual" value="1ª Emissão" sub="10.000.000 BCT" />
 
-        <Card
+        <KpiCard
+          icon={Wallet}
           title="Capital Captado"
           value={data ? format(faturamento) : "—"}
           sub="faturamento total"
         />
 
-        <Card
-          title="Supply Total Emitido"
-          value="10.000.000 BCT"
-          sub="de 1T final"
-        />
+        <KpiCard icon={Layers} title="Supply Total Emitido" value="10.000.000 BCT" sub="de 1T final" />
 
-        <Card
-          title="Diluição Atual"
-          value="0,001%"
-          sub="controlada"
-        />
+        <KpiCard icon={PieChart} title="Diluição Atual" value="0,001%" sub="controlada" />
       </div>
 
       {/* TABELA DE EMISSÕES */}
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: 12,
-          padding: 24,
-          boxShadow: "0 4px 12px rgba(0,0,0,.05)",
-        }}
-      >
-        <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16 }}>
-          Histórico de Emissões
-        </h2>
+      <Card>
+        <CardHeader>
+          <CardTitle>Histórico de Emissões</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Emissão</TableHead>
+                <TableHead>Supply</TableHead>
+                <TableHead>Preço</TableHead>
+                <TableHead>Captado</TableHead>
+                <TableHead>Vendido</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
 
-        <div style={{ overflowX: "auto" }}>
-          <table
-            width="100%"
-            cellPadding={10}
-            style={{ borderCollapse: "collapse" }}
-          >
-            <thead>
-              <tr
-                style={{
-                  textAlign: "left",
-                  fontSize: 13,
-                  color: "#666",
-                  borderBottom: "1px solid #eee",
-                }}
-              >
-                <th>Emissão</th>
-                <th>Supply</th>
-                <th>Preço</th>
-                <th>Captado</th>
-                <th>Vendido</th>
-                <th>Status</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-
-            <tbody>
+            <TableBody>
               <Linha
                 emissao="1ª Emissão"
                 supply="10.000.000"
@@ -156,38 +135,40 @@ export default function EmissoesPage() {
                 vendido="—"
                 status="Final"
               />
-            </tbody>
-          </table>
-        </div>
-      </div>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
 /* COMPONENTES AUXILIARES */
 
-function Card({
+function KpiCard({
+  icon: Icon,
   title,
   value,
   sub,
 }: {
+  icon: React.ComponentType<{ className?: string }>;
   title: string;
   value: string;
   sub?: string;
 }) {
   return (
-    <div
-      style={{
-        background: "#fff",
-        borderRadius: 12,
-        padding: 20,
-        boxShadow: "0 4px 12px rgba(0,0,0,.05)",
-      }}
-    >
-      <p style={{ fontSize: 13, color: "#666" }}>{title}</p>
-      <h3 style={{ fontSize: 20, fontWeight: 600 }}>{value}</h3>
-      {sub && <p style={{ fontSize: 13, color: "#999" }}>{sub}</p>}
-    </div>
+    <Card>
+      <CardContent className="flex items-center gap-4">
+        <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+          <Icon className="w-5 h-5" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm text-muted-foreground truncate">{title}</p>
+          <p className="text-2xl font-bold text-[#101820] truncate">{value}</p>
+          {sub && <p className="text-xs text-[#9CA3AF] truncate">{sub}</p>}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -206,37 +187,28 @@ function Linha({
   vendido: string;
   status: string;
 }) {
-  const statusColor =
+  const statusClass =
     status === "Ativa"
-      ? "#2ECC71"
+      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
       : status === "Bloqueada"
-      ? "#E67E22"
-      : "#999";
+      ? "bg-amber-50 text-amber-700 border-amber-200"
+      : "bg-muted text-muted-foreground border-transparent";
 
   return (
-    <tr
-      style={{
-        fontSize: 14,
-        borderBottom: "1px solid #f0f0f0",
-      }}
-    >
-      <td><strong>{emissao}</strong></td>
-      <td>{supply}</td>
-      <td>{preco}</td>
-      <td>{captado}</td>
-      <td>{vendido}</td>
-      <td style={{ color: statusColor, fontWeight: 500 }}>{status}</td>
-      <td>
-        <button style={acaoBtn}>Ver</button>
-      </td>
-    </tr>
+    <TableRow>
+      <TableCell className="font-medium text-[#101820]">{emissao}</TableCell>
+      <TableCell>{supply}</TableCell>
+      <TableCell>{preco}</TableCell>
+      <TableCell>{captado}</TableCell>
+      <TableCell>{vendido}</TableCell>
+      <TableCell>
+        <Badge variant="outline" className={cn("font-medium", statusClass)}>
+          {status}
+        </Badge>
+      </TableCell>
+      <TableCell className="text-right">
+        <Button variant="ghost" size="sm">Ver</Button>
+      </TableCell>
+    </TableRow>
   );
 }
-
-const acaoBtn: React.CSSProperties = {
-  background: "transparent",
-  border: "none",
-  color: "#CBA35C",
-  cursor: "pointer",
-  fontWeight: 500,
-};

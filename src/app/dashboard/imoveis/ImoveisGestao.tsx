@@ -1,6 +1,29 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Plus, Pencil, Trash2, X } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select } from "@/components/ui/select";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 /* ================= TYPES ================= */
 
@@ -109,64 +132,73 @@ export default function ImoveisGestao() {
   }
 
   return (
-    <div style={card}>
-      {/* HEADER */}
-      <div style={header}>
-        <h2 style={title}>Gestão de Imóveis</h2>
-        <button style={btnPrimary} onClick={() => setAbrirNovo(true)}>
-          + Novo imóvel
-        </button>
-      </div>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Gestão de Imóveis</CardTitle>
+        <Button onClick={() => setAbrirNovo(true)}>
+          <Plus className="w-4 h-4" />
+          Novo imóvel
+        </Button>
+      </CardHeader>
 
-      {/* TABLE */}
-      <table width="100%" cellPadding={8} style={{ borderCollapse: "collapse" }}>
-        <thead>
-          <tr style={thead}>
-            <th>Imóvel</th>
-            <th>Localização</th>
-            <th>Descrição</th>
-            <th>Compra</th>
-            <th>Mercado</th>
-            <th>% Pool</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Imóvel</TableHead>
+              <TableHead>Localização</TableHead>
+              <TableHead>Descrição</TableHead>
+              <TableHead>Compra</TableHead>
+              <TableHead>Mercado</TableHead>
+              <TableHead>% Pool</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Ações</TableHead>
+            </TableRow>
+          </TableHeader>
 
-        <tbody>
-          {imoveis.map((i) => (
-            <tr key={i.id} style={row}>
-              <td><strong>{i.nome}</strong></td>
-              <td>{i.localizacao}</td>
-              <td>{i.descricao}</td>
-              <td>R$ {i.valorCompra.toLocaleString("pt-BR")}</td>
-              <td>R$ {i.valorMercado.toLocaleString("pt-BR")}</td>
-              <td>{i.percentualPool}%</td>
-              <td>{i.status ?? "ativo"}</td>
-              <td>
-                <button
-                  style={btnLink}
-                  onClick={() => {
-                    setForm(i);
-                    setEditar(true);
-                  }}
-                >
-                  Editar
-                </button>
-                <button
-                  style={{ ...btnLink, color: "#C0392B" }}
-                  onClick={() => {
-                    setForm(i);
-                    setConfirmarExcluir(true);
-                  }}
-                >
-                  Excluir
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+          <TableBody>
+            {imoveis.map((i) => (
+              <TableRow key={i.id}>
+                <TableCell className="font-medium text-[#101820]">{i.nome}</TableCell>
+                <TableCell>{i.localizacao}</TableCell>
+                <TableCell className="max-w-[220px] truncate">{i.descricao}</TableCell>
+                <TableCell>R$ {i.valorCompra.toLocaleString("pt-BR")}</TableCell>
+                <TableCell>R$ {i.valorMercado.toLocaleString("pt-BR")}</TableCell>
+                <TableCell>{i.percentualPool}%</TableCell>
+                <TableCell>
+                  <Badge variant={i.status === "inativo" ? "secondary" : "default"}>
+                    {i.status ?? "ativo"}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-[#6B7280] hover:text-[#101820]"
+                    onClick={() => {
+                      setForm(i);
+                      setEditar(true);
+                    }}
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-[#6B7280] hover:text-destructive"
+                    onClick={() => {
+                      setForm(i);
+                      setConfirmarExcluir(true);
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
 
       {/* MODAIS */}
       {abrirNovo && (
@@ -192,7 +224,7 @@ export default function ImoveisGestao() {
           onConfirm={excluirImovel}
         />
       )}
-    </div>
+    </Card>
   );
 }
 
@@ -227,87 +259,104 @@ function ModalImovel({
   });
 
   return (
-    <div style={overlay}>
-      <div style={{ ...modal, maxHeight: "90vh", overflowY: "auto" }}>
-        <h3>{titulo}</h3>
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{titulo}</DialogTitle>
+        </DialogHeader>
 
-        <Campo label="Nome" value={data.nome} onChange={(v) => setData({ ...data, nome: v })} />
-        <Campo label="Slug" value={data.slug || ""} onChange={(v) => setData({ ...data, slug: v })} />
-        <Campo label="Localização" value={data.localizacao} onChange={(v) => setData({ ...data, localizacao: v })} />
-        <Campo label="Descrição" value={data.descricao} onChange={(v) => setData({ ...data, descricao: v })} />
-        <Campo label="Imagem (URL)" value={data.imagemUrl || ""} onChange={(v) => setData({ ...data, imagemUrl: v })} />
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Campo label="Nome" value={data.nome} onChange={(v) => setData({ ...data, nome: v })} />
+            <Campo label="Slug" value={data.slug || ""} onChange={(v) => setData({ ...data, slug: v })} />
+          </div>
 
-        <CampoNumero
-          label="Valor de Compra"
-          value={data.valorCompra}
-          onChange={(v) => setData({ ...data, valorCompra: v })}
-        />
+          <Campo label="Localização" value={data.localizacao} onChange={(v) => setData({ ...data, localizacao: v })} />
 
-        <CampoNumero
-          label="Valor de Mercado"
-          value={data.valorMercado}
-          onChange={(v) => setData({ ...data, valorMercado: v })}
-        />
+          <div className="space-y-1.5">
+            <Label>Descrição</Label>
+            <Textarea
+              value={data.descricao}
+              onChange={(e) => setData({ ...data, descricao: e.target.value })}
+            />
+          </div>
 
-        <CampoNumero
-          label="% Pool"
-          value={data.percentualPool}
-          onChange={(v) => setData({ ...data, percentualPool: v })}
-        />
+          <Campo label="Imagem (URL)" value={data.imagemUrl || ""} onChange={(v) => setData({ ...data, imagemUrl: v })} />
 
-        <CampoNumero
-          label="ROI Projetado (%)"
-          value={data.roiProjetado ?? 0}
-          onChange={(v) => setData({ ...data, roiProjetado: v })}
-        />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <CampoNumero
+              label="Valor de Compra"
+              value={data.valorCompra}
+              onChange={(v) => setData({ ...data, valorCompra: v })}
+            />
 
-        <CampoNumero
-          label="ROI Realizado (%)"
-          value={data.roiRealizado ?? 0}
-          onChange={(v) => setData({ ...data, roiRealizado: v })}
-        />
+            <CampoNumero
+              label="Valor de Mercado"
+              value={data.valorMercado}
+              onChange={(v) => setData({ ...data, valorMercado: v })}
+            />
 
-        <div style={{ marginBottom: 12 }}>
-          <label>Data de Aquisição</label>
-          <input
-            type="date"
-            value={data.dataAquisicao || ""}
-            onChange={(e) => setData({ ...data, dataAquisicao: e.target.value })}
-            style={input}
+            <CampoNumero
+              label="% Pool"
+              value={data.percentualPool}
+              onChange={(v) => setData({ ...data, percentualPool: v })}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <CampoNumero
+              label="ROI Projetado (%)"
+              value={data.roiProjetado ?? 0}
+              onChange={(v) => setData({ ...data, roiProjetado: v })}
+            />
+
+            <CampoNumero
+              label="ROI Realizado (%)"
+              value={data.roiRealizado ?? 0}
+              onChange={(v) => setData({ ...data, roiRealizado: v })}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label>Data de Aquisição</Label>
+              <Input
+                type="date"
+                value={data.dataAquisicao || ""}
+                onChange={(e) => setData({ ...data, dataAquisicao: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Status</Label>
+              <Select
+                value={data.status || "ativo"}
+                onChange={(e) => setData({ ...data, status: e.target.value })}
+              >
+                <option value="ativo">Ativo</option>
+                <option value="inativo">Inativo</option>
+              </Select>
+            </div>
+          </div>
+
+          <Campo
+            label="Status Documental"
+            value={data.statusDocumental || ""}
+            onChange={(v) => setData({ ...data, statusDocumental: v })}
+          />
+
+          <DocumentosEditor
+            value={data.documentos || {}}
+            onChange={(v) => setData({ ...data, documentos: v })}
           />
         </div>
 
-        <Campo
-          label="Status Documental"
-          value={data.statusDocumental || ""}
-          onChange={(v) => setData({ ...data, statusDocumental: v })}
-        />
-
-        <div style={{ marginBottom: 12 }}>
-          <label>Status</label>
-          <select
-            value={data.status || "ativo"}
-            onChange={(e) => setData({ ...data, status: e.target.value })}
-            style={input}
-          >
-            <option value="ativo">Ativo</option>
-            <option value="inativo">Inativo</option>
-          </select>
-        </div>
-
-        <DocumentosEditor
-          value={data.documentos || {}}
-          onChange={(v) => setData({ ...data, documentos: v })}
-        />
-
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
-          <button onClick={onClose}>Cancelar</button>
-          <button style={btnPrimary} onClick={() => onSave(data)}>
-            Salvar
-          </button>
-        </div>
-      </div>
-    </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button onClick={() => onSave(data)}>Salvar</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -338,43 +387,48 @@ function DocumentosEditor({
   }
 
   return (
-    <div style={{ marginBottom: 12 }}>
-      <label>Documentos</label>
+    <div className="space-y-1.5">
+      <Label>Documentos</Label>
 
-      {CATEGORIAS_DOCUMENTOS.map(({ key, label }) => (
-        <div key={key} style={docCategoria}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <strong style={{ fontSize: 13 }}>{label}</strong>
-            <button type="button" style={btnLink} onClick={() => addItem(key)}>
-              + adicionar
-            </button>
-          </div>
-
-          {(value[key] || []).map((item, idx) => (
-            <div key={idx} style={{ display: "flex", gap: 8, marginTop: 8 }}>
-              <input
-                placeholder="Nome"
-                value={item.nome}
-                onChange={(e) => updateItem(key, idx, "nome", e.target.value)}
-                style={{ ...input, flex: 1 }}
-              />
-              <input
-                placeholder="URL"
-                value={item.url}
-                onChange={(e) => updateItem(key, idx, "url", e.target.value)}
-                style={{ ...input, flex: 2 }}
-              />
-              <button
-                type="button"
-                style={{ ...btnLink, color: "#C0392B" }}
-                onClick={() => removeItem(key, idx)}
-              >
-                Remover
-              </button>
+      <div className="space-y-2">
+        {CATEGORIAS_DOCUMENTOS.map(({ key, label }) => (
+          <div key={key} className="rounded-xl border border-[#E5E7EB] p-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-[#101820]">{label}</span>
+              <Button type="button" variant="ghost" size="sm" onClick={() => addItem(key)}>
+                <Plus className="w-3.5 h-3.5" />
+                Adicionar
+              </Button>
             </div>
-          ))}
-        </div>
-      ))}
+
+            {(value[key] || []).map((item, idx) => (
+              <div key={idx} className="flex gap-2 mt-2">
+                <Input
+                  placeholder="Nome"
+                  value={item.nome}
+                  onChange={(e) => updateItem(key, idx, "nome", e.target.value)}
+                  className="flex-1"
+                />
+                <Input
+                  placeholder="URL"
+                  value={item.url}
+                  onChange={(e) => updateItem(key, idx, "url", e.target.value)}
+                  className="flex-[2]"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="text-[#6B7280] hover:text-destructive shrink-0"
+                  onClick={() => removeItem(key, idx)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -389,22 +443,22 @@ function ConfirmarExcluir({
   onConfirm: () => void;
 }) {
   return (
-    <div style={overlay}>
-      <div style={modal}>
-        <h3>Confirmar exclusão</h3>
-        <p>Tem certeza que deseja excluir este imóvel?</p>
+    <Dialog open onOpenChange={(open) => !open && onCancel()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Confirmar exclusão</DialogTitle>
+        </DialogHeader>
 
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
-          <button onClick={onCancel}>Cancelar</button>
-          <button
-            style={{ ...btnPrimary, background: "#C0392B" }}
-            onClick={onConfirm}
-          >
-            Excluir
-          </button>
-        </div>
-      </div>
-    </div>
+        <p className="text-sm text-muted-foreground">
+          Tem certeza que deseja excluir este imóvel?
+        </p>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onCancel}>Cancelar</Button>
+          <Button variant="destructive" onClick={onConfirm}>Excluir</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -420,9 +474,9 @@ function Campo({
   onChange: (v: string) => void;
 }) {
   return (
-    <div style={{ marginBottom: 12 }}>
-      <label>{label}</label>
-      <input value={value} onChange={(e) => onChange(e.target.value)} style={input} />
+    <div className="space-y-1.5">
+      <Label>{label}</Label>
+      <Input value={value} onChange={(e) => onChange(e.target.value)} />
     </div>
   );
 }
@@ -437,87 +491,13 @@ function CampoNumero({
   onChange: (v: number) => void;
 }) {
   return (
-    <div style={{ marginBottom: 12 }}>
-      <label>{label}</label>
-      <input
+    <div className="space-y-1.5">
+      <Label>{label}</Label>
+      <Input
         type="number"
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        style={input}
       />
     </div>
   );
 }
-
-/* ================= STYLES ================= */
-
-const card = {
-  background: "#fff",
-  padding: 24,
-  borderRadius: 12,
-};
-
-const header = {
-  display: "flex",
-  justifyContent: "space-between",
-  marginBottom: 24,
-};
-
-const title = { fontSize: 18, fontWeight: 600 };
-
-const thead = {
-  textAlign: "left" as const,
-  fontSize: 13,
-  color: "#666",
-  borderBottom: "1px solid #eee",
-};
-
-const row = {
-  fontSize: 14,
-  borderBottom: "1px solid #f0f0f0",
-};
-
-const btnLink = {
-  background: "none",
-  border: "none",
-  cursor: "pointer",
-  color: "#CBA35C",
-  marginRight: 8,
-};
-
-const btnPrimary = {
-  padding: "8px 16px",
-  background: "#CBA35C",
-  color: "#fff",
-  border: "none",
-  borderRadius: 8,
-  cursor: "pointer",
-};
-
-const overlay = {
-  position: "fixed" as const,
-  inset: 0,
-  background: "rgba(0,0,0,.4)",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
-
-const modal = {
-  background: "#fff",
-  padding: 32,
-  borderRadius: 16,
-  width: 600,
-};
-
-const input = {
-  width: "100%",
-  padding: 8,
-};
-
-const docCategoria = {
-  marginTop: 8,
-  padding: 8,
-  border: "1px solid #eee",
-  borderRadius: 8,
-};

@@ -31,17 +31,9 @@ const eventos = [
 export default function HoldingTimeline() {
   return (
     <section>
-      <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16 }}>
-        Linha do Tempo da Holding
-      </h2>
+      <h2 className="text-lg font-semibold text-[#101820] mb-4">Linha do Tempo da Holding</h2>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr",
-          gap: 16,
-        }}
-      >
+      <div className="grid grid-cols-1 gap-3">
         {eventos.map((evento, index) => (
           <Card
             key={index}

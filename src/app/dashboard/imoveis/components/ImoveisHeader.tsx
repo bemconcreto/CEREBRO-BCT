@@ -1,22 +1,8 @@
 export default function ImoveisHeader() {
   return (
     <div>
-      <h1
-        style={{
-          fontSize: 28,
-          fontWeight: 600,
-          color: "#101820",
-        }}
-      >
-        Imóveis
-      </h1>
-
-      <p
-        style={{
-          marginTop: 8,
-          color: "#6B6B6B",
-        }}
-      >
+      <h1 className="text-2xl font-bold text-[#101820] tracking-tight">Imóveis</h1>
+      <p className="text-sm text-[#6B7280] mt-1">
         Gestão dos imóveis vinculados à holding tokenizada.
       </p>
     </div>

@@ -7,7 +7,7 @@ import HoldingTimeline from "./components/HoldingTimeline";
 
 export default function HoldingPage() {
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       <HoldingHeader />
       <HoldingInfoCards />
       <HoldingFinanceCards />
