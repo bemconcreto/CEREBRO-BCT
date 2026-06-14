@@ -8,7 +8,7 @@ export default function ImoveisLayout({
       style={{
         marginLeft: 150, // largura do sidebar
         padding: "32px",
-        background: "#F6F4EF",
+        background: "#F7F8F9",
         minHeight: "100vh",
       }}
     >

@@ -27,7 +27,7 @@ function Card({ title, value }: { title: string; value: string }) {
           marginTop: 8,
           fontSize: 22,
           fontWeight: 600,
-          color: "#1E1E1E",
+          color: "#101820",
         }}
       >
         {value}

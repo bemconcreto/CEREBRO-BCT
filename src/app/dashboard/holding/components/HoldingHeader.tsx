@@ -8,7 +8,7 @@ export default function HoldingHeader() {
 
       <div className="flex gap-3 text-sm">
         <span>CNPJ: 00.000.000/0001-00</span>
-        <span className="px-2 py-0.5 rounded-full bg-[#C9A24D] text-white">
+        <span className="px-2 py-0.5 rounded-full bg-[#CBA35C] text-white">
           ATIVA
         </span>
       </div>

@@ -12,7 +12,7 @@ export default function Sidebar() {
     <aside
       style={{
         width: 150,
-        background: "#1E1E1E",
+        background: "#101820",
         position: "fixed",
         top: 0,
         left: 0,
@@ -25,7 +25,7 @@ export default function Sidebar() {
       {/* LOGO */}
       <h1
         style={{
-          color: "#C9A24D",
+          color: "#CBA35C",
           fontSize: 20,
           fontWeight: 600,
           marginBottom: 40,

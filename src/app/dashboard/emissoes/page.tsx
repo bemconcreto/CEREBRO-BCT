@@ -236,7 +236,7 @@ function Linha({
 const acaoBtn: React.CSSProperties = {
   background: "transparent",
   border: "none",
-  color: "#C9A24D",
+  color: "#CBA35C",
   cursor: "pointer",
   fontWeight: 500,
 };

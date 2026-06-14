@@ -60,7 +60,7 @@ export default function PrecoPage() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
       <div>
-        <h1 style={{ fontSize: 28, fontWeight: 600, color: "#1E1E1E" }}>
+        <h1 style={{ fontSize: 28, fontWeight: 600, color: "#101820" }}>
           Preço do BEM
         </h1>
         <p style={{ marginTop: 8, color: "#6B6B6B" }}>
@@ -130,7 +130,7 @@ function Card({ title, value }: { title: string; value: string }) {
       }}
     >
       <p style={{ fontSize: 13, color: "#6B6B6B" }}>{title}</p>
-      <p style={{ marginTop: 8, fontSize: 22, fontWeight: 600, color: "#1E1E1E" }}>
+      <p style={{ marginTop: 8, fontSize: 22, fontWeight: 600, color: "#101820" }}>
         {value}
       </p>
     </div>
@@ -171,7 +171,7 @@ const title = { fontSize: 18, fontWeight: 600, marginBottom: 16 };
 
 const btnPrimary = {
   padding: "8px 16px",
-  background: "#C9A24D",
+  background: "#CBA35C",
   color: "#fff",
   border: "none",
   borderRadius: 8,

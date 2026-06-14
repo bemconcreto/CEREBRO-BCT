@@ -481,13 +481,13 @@ const btnLink = {
   background: "none",
   border: "none",
   cursor: "pointer",
-  color: "#C9A24D",
+  color: "#CBA35C",
   marginRight: 8,
 };
 
 const btnPrimary = {
   padding: "8px 16px",
-  background: "#C9A24D",
+  background: "#CBA35C",
   color: "#fff",
   border: "none",
   borderRadius: 8,

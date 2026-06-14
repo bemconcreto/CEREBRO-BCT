@@ -32,7 +32,7 @@ export default function DashboardLayout({
           marginLeft: 260,
           padding: 32,
           minHeight: "100vh",
-          background: "#F6F4EF",
+          background: "#F7F8F9",
         }}
       >
         {children}
