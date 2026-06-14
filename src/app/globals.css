@@ -55,6 +55,8 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
 
+  --color-destructive: var(--destructive);
+
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
 
@@ -120,6 +122,8 @@
 
   --accent: #8D6E63;
   --accent-foreground: #FFFFFF;
+
+  --destructive: #ef4444;
 
   --border: #E5E7EB;
   --input: #E5E7EB;
