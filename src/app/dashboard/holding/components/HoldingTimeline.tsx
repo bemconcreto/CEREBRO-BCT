@@ -12,8 +12,8 @@ const eventos = [
     data: "2024",
   },
   {
-    titulo: "Primeira Emissão BCT",
-    descricao: "Emissão inicial de 10.000.000 BCT.",
+    titulo: "Primeira Emissão BEM",
+    descricao: "Emissão inicial de 10.000.000 BEM.",
     data: "2025",
   },
   {

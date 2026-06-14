@@ -54,7 +54,7 @@ export default function VendasPage() {
       {/* HEADER */}
       <div>
         <h1 className="text-2xl font-bold text-[#101820] tracking-tight">Vendas</h1>
-        <p className="text-sm text-[#6B7280] mt-1">Controle completo das vendas reais de BCT</p>
+        <p className="text-sm text-[#6B7280] mt-1">Controle completo das vendas reais de BEM</p>
       </div>
 
       {/* CARDS */}
@@ -62,7 +62,7 @@ export default function VendasPage() {
         <KpiCard icon={DollarSign} title="Faturamento Total" value={formatBRL(kpis?.faturamento_total ?? 0)} />
         <KpiCard icon={ShoppingCart} title="Total de Vendas" value={(kpis?.total_vendas ?? 0).toString()} />
         <KpiCard icon={UserCheck} title="Consultores Ativos" value="—" />
-        <KpiCard icon={Coins} title="BCT Vendidos" value={(kpis?.bct_vendidos ?? 0).toLocaleString("pt-BR")} />
+        <KpiCard icon={Coins} title="BEM Vendidos" value={(kpis?.bct_vendidos ?? 0).toLocaleString("pt-BR")} />
         <KpiCard icon={CalendarDays} title="Vendas do Mês" value={formatBRL(kpis?.vendas_mes ?? 0)} />
         <KpiCard icon={Receipt} title="Ticket Médio" value={formatBRL(kpis?.ticket_medio ?? 0)} />
       </div>
@@ -79,7 +79,7 @@ export default function VendasPage() {
                 <TableHead>Data</TableHead>
                 <TableHead>Investidor</TableHead>
                 <TableHead>Consultor</TableHead>
-                <TableHead>BCT</TableHead>
+                <TableHead>BEM</TableHead>
                 <TableHead>Valor (R$)</TableHead>
                 <TableHead>Emissão</TableHead>
                 <TableHead>Status</TableHead>

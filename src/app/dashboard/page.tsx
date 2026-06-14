@@ -54,13 +54,13 @@ export default function DashboardPage() {
       {/* TÍTULO */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-[#101820] tracking-tight">Visão Geral</h1>
-        <p className="text-sm text-[#6B7280] mt-1">Painel administrativo do CÉREBRO-BCT</p>
+        <p className="text-sm text-[#6B7280] mt-1">Painel administrativo do CÉREBRO BEM</p>
       </div>
 
       {/* KPIs */}
       <Grid cols={5}>
         <KpiCard icon={DollarSign} title="Faturamento Total" value={currency(data?.faturamentoTotal)} />
-        <KpiCard icon={Coins} title="Vendas de BCT" value={data?.vendasBCT?.toString() || "0"} />
+        <KpiCard icon={Coins} title="Vendas de BEM" value={data?.vendasBCT?.toString() || "0"} />
         <KpiCard icon={Users} title="Usuários" value={data?.usuarios?.toString() || "0"} />
         <KpiCard icon={UserCheck} title="Consultores Certificados" value={data?.consultores?.toString() || "0"} />
         <KpiCard icon={Building2} title="Imóveis Cadastrados" value={data?.totalImoveis?.toString() || "0"} />

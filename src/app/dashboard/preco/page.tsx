@@ -72,7 +72,7 @@ export default function PrecoPage() {
       <div>
         <h1 className="text-2xl font-bold text-[#101820] tracking-tight">Preço do BEM</h1>
         <p className="text-sm text-[#6B7280] mt-1">
-          Define o preço do token BEM (BCT) usado em todo o ecossistema
+          Define o preço do token BEM usado em todo o ecossistema
           (APP, Consultor, Landpage e Certificação).
         </p>
       </div>

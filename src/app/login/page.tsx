@@ -54,10 +54,10 @@ export default function LoginPage() {
             <div className="relative mb-4">
               <div className="absolute -inset-3 rounded-full bg-gradient-to-br from-[#8D6E63]/20 to-[#CBA35C]/10 blur-xl" />
               <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-[#F7F8F9] to-white border border-[#E5E7EB]/60 flex items-center justify-center shadow-sm">
-                <img src="/logo-bct.png" alt="BCT" className="w-10 h-10 object-contain" />
+                <img src="/logo-bct.png" alt="BEM" className="w-10 h-10 object-contain" />
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-[#101820] tracking-tight">Cérebro BCT</h1>
+            <h1 className="text-2xl font-bold text-[#101820] tracking-tight">Cérebro BEM</h1>
             <p className="text-sm text-[#6B7280] mt-1.5">Sistema central de gestão da Bem Concreto</p>
           </div>
 

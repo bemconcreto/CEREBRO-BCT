@@ -121,7 +121,7 @@ export default function UsuariosPage() {
       {/* HEADER */}
       <div>
         <h1 className="text-2xl font-bold text-[#101820] tracking-tight">Usuários</h1>
-        <p className="text-sm text-[#6B7280] mt-1">Base real de usuários do App-BCT</p>
+        <p className="text-sm text-[#6B7280] mt-1">Base real de usuários do App BEM</p>
       </div>
 
       {/* CARDS */}
@@ -151,8 +151,8 @@ export default function UsuariosPage() {
         >
           <option value="data_desc">Cadastro (mais recentes)</option>
           <option value="data_asc">Cadastro (mais antigos)</option>
-          <option value="bct_desc">BCT (maior saldo)</option>
-          <option value="bct_asc">BCT (menor saldo)</option>
+          <option value="bct_desc">BEM (maior saldo)</option>
+          <option value="bct_asc">BEM (menor saldo)</option>
         </Select>
       </div>
 
@@ -169,7 +169,7 @@ export default function UsuariosPage() {
                 <TableHead>CPF</TableHead>
                 <TableHead>Telefone</TableHead>
                 <TableHead>Carteira</TableHead>
-                <TableHead>BCT</TableHead>
+                <TableHead>BEM</TableHead>
                 <TableHead>Cadastro</TableHead>
               </TableRow>
             </TableHeader>

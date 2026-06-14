@@ -37,7 +37,7 @@ export default function Sidebar() {
         </div>
         <div className="flex flex-col">
           <span className="font-bold text-[15px] text-white leading-tight tracking-tight">
-            Cérebro BCT
+            Cérebro BEM
           </span>
           <span className="text-[9px] font-bold text-[#CBA35C] uppercase tracking-[0.2em] leading-none mt-0.5">
             Admin

@@ -40,7 +40,7 @@ export default function EmissoesPage() {
     <div className="flex flex-col gap-8">
       {/* HEADER */}
       <div>
-        <h1 className="text-2xl font-bold text-[#101820] tracking-tight">Emissões do BCT</h1>
+        <h1 className="text-2xl font-bold text-[#101820] tracking-tight">Emissões do BEM</h1>
         <p className="text-sm text-[#6B7280] mt-1">
           Gestão das emissões de token vinculadas à holding
         </p>
@@ -48,7 +48,7 @@ export default function EmissoesPage() {
 
       {/* CARDS DE TOPO */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard icon={Coins} title="Emissão Atual" value="1ª Emissão" sub="10.000.000 BCT" />
+        <KpiCard icon={Coins} title="Emissão Atual" value="1ª Emissão" sub="10.000.000 BEM" />
 
         <KpiCard
           icon={Wallet}
@@ -57,7 +57,7 @@ export default function EmissoesPage() {
           sub="faturamento total"
         />
 
-        <KpiCard icon={Layers} title="Supply Total Emitido" value="10.000.000 BCT" sub="de 1T final" />
+        <KpiCard icon={Layers} title="Supply Total Emitido" value="10.000.000 BEM" sub="de 1T final" />
 
         <KpiCard icon={PieChart} title="Diluição Atual" value="0,001%" sub="controlada" />
       </div>

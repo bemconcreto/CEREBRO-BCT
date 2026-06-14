@@ -7,7 +7,7 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "CÉREBRO-BCT",
+  title: "CÉREBRO BEM",
   description: "Painel administrativo Bem Concreto",
 };
 
