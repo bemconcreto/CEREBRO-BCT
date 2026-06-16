@@ -10,7 +10,7 @@ export async function GET() {
     /* ── Faturamento real (compras pagas) ── */
     const { data: compras, error } = await supabaseApp
       .from("compras_bct")
-      .select("valor_pago, status");
+      .select("valor_pago, status, tokens, user_id");
 
     if (error) throw error;
 
@@ -20,6 +20,8 @@ export async function GET() {
       0
     );
     const totalCompras = pagas.length;
+    const totalTokens = pagas.reduce((sum, c) => sum + Number(c.tokens || 0), 0);
+    const totalInvestidores = new Set(pagas.map((c) => c.user_id)).size;
 
     /* ── Pools (regra BCT) ── */
     const poolReserva   = faturamentoTotal * 0.20;
@@ -51,6 +53,8 @@ export async function GET() {
       atualizadoEm: new Date().toISOString(),
       faturamentoTotal,
       totalCompras,
+      totalTokens,
+      totalInvestidores,
       pools: {
         reserva:  { percentual: 20, valor: poolReserva },
         liquidez: { percentual: 30, valor: poolLiquidez },
