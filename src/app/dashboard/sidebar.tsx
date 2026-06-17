@@ -13,6 +13,7 @@ import {
   ShoppingCart,
   ArrowDownToLine,
   Hexagon,
+  Banknote,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +26,7 @@ const navigation = [
   { name: "Usuários", href: "/dashboard/usuarios", icon: Users },
   { name: "Consultores", href: "/dashboard/consultores", icon: UserCheck },
   { name: "Vendas", href: "/dashboard/vendas", icon: ShoppingCart },
+  { name: "Comissões", href: "/dashboard/comissoes", icon: Banknote },
   { name: "Saques BEM", href: "/dashboard/saques", icon: ArrowDownToLine },
   { name: "Token BEM", href: "/dashboard/token", icon: Hexagon },
 ];
