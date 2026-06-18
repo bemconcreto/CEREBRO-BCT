@@ -14,6 +14,7 @@ import {
   ArrowDownToLine,
   Hexagon,
   Banknote,
+  Share2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +30,7 @@ const navigation = [
   { name: "Comissões", href: "/dashboard/comissoes", icon: Banknote },
   { name: "Saques BEM", href: "/dashboard/saques", icon: ArrowDownToLine },
   { name: "Token BEM", href: "/dashboard/token", icon: Hexagon },
+  { name: "Redes Sociais", href: "/dashboard/redes-sociais", icon: Share2 },
 ];
 
 export default function Sidebar() {
