@@ -296,6 +296,44 @@ function PostCard({ post, onUpdate }: PostCardProps) {
   )
 }
 
+// Groups posts into batches — posts created within 3 minutes of each other = same batch
+function groupIntoBatches(posts: SocialPost[]): { batchTime: Date; theme: string; posts: SocialPost[] }[] {
+  if (posts.length === 0) return []
+
+  const sorted = [...posts].sort((a, b) =>
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  )
+
+  const batches: { batchTime: Date; theme: string; posts: SocialPost[] }[] = []
+  let current: SocialPost[] = []
+  let batchAnchor: Date | null = null
+
+  for (const post of sorted) {
+    const t = new Date(post.created_at)
+    if (!batchAnchor || batchAnchor.getTime() - t.getTime() > 3 * 60 * 1000) {
+      if (current.length > 0) batches.push({ batchTime: batchAnchor!, theme: current[0].theme_title, posts: current })
+      current = [post]
+      batchAnchor = t
+    } else {
+      current.push(post)
+    }
+  }
+  if (current.length > 0) batches.push({ batchTime: batchAnchor!, theme: current[0].theme_title, posts: current })
+
+  return batches
+}
+
+function formatBatchLabel(date: Date): string {
+  const now = new Date()
+  const today = new Date(); today.setHours(0, 0, 0, 0)
+  const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1)
+
+  const time = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  if (date >= today) return `Hoje às ${time}`
+  if (date >= yesterday) return `Ontem às ${time}`
+  return `${date.toLocaleDateString('pt-BR')} às ${time}`
+}
+
 export default function RedesSociaisClient({ initialPosts }: { initialPosts: SocialPost[] }) {
   const [posts, setPosts] = useState<SocialPost[]>(initialPosts)
   const [generating, setGenerating] = useState(false)
@@ -307,106 +345,89 @@ export default function RedesSociaisClient({ initialPosts }: { initialPosts: Soc
 
   async function handleGenerate() {
     setGenerating(true); setGenMsg('')
-    const res = await fetch('/api/social/generate', { method: 'POST' })
-    const data = await res.json()
-    if (data.skipped) {
-      setGenMsg('⚠️ Conteúdo de hoje já foi gerado.')
-    } else if (data.success) {
-      const res2 = await fetch('/api/social/posts?today=true')
-      const d2 = await res2.json()
-      setPosts(d2.posts ?? [])
-      setGenMsg(`✓ Gerado com sucesso: "${data.theme}"`)
-    } else {
-      setGenMsg('✗ Erro ao gerar conteúdo.')
+    try {
+      const res = await fetch('/api/social/generate', { method: 'POST' })
+      const data = await res.json()
+      if (data.success) {
+        setPosts(data.posts ?? [])
+        setGenMsg(`✓ Novo lote gerado: "${data.theme}"`)
+      } else {
+        setGenMsg('✗ Erro ao gerar conteúdo.')
+      }
+    } catch {
+      setGenMsg('✗ Erro de conexão.')
     }
     setGenerating(false)
   }
 
-  const today = new Date(); today.setHours(0, 0, 0, 0)
-  const todayPosts = posts.filter((p) => new Date(p.created_at) >= today)
-  const historyPosts = posts.filter((p) => new Date(p.created_at) < today)
-
-  const pending = todayPosts.filter((p) => p.status === 'pending').length
-  const posted = todayPosts.filter((p) => p.status === 'posted').length
-  const theme = todayPosts[0]?.theme_title
+  const batches = groupIntoBatches(posts)
+  const totalPending = posts.filter((p) => p.status === 'pending').length
 
   return (
-    <div className="space-y-8">
-      {/* Stats + Gerar */}
-      <div className="flex items-start justify-between gap-4">
+    <div className="space-y-10">
+      {/* Toolbar */}
+      <div className="flex items-center justify-between gap-4">
         <div>
-          {theme && (
-            <p className="text-sm">
-              <span className="text-[#8D6E63] font-medium">Tema de hoje: </span>
-              <span className="text-[#101820] font-semibold">{theme}</span>
-            </p>
+          {totalPending > 0 && (
+            <p className="text-sm text-amber-600 font-medium">{totalPending} post{totalPending > 1 ? 's' : ''} aguardando aprovação</p>
           )}
-          <div className="flex gap-4 mt-1.5">
-            {pending > 0 && <span className="text-sm text-amber-600 font-medium">{pending} pendente{pending > 1 ? 's' : ''}</span>}
-            {posted > 0 && <span className="text-sm text-emerald-600 font-medium">{posted} publicado{posted > 1 ? 's' : ''}</span>}
-            {pending === 0 && posted === 0 && <span className="text-sm text-gray-400">Nenhum post hoje</span>}
-          </div>
+          <p className="text-xs text-gray-400 mt-0.5">Cada clique gera um novo lote para todas as plataformas</p>
         </div>
         <button
           onClick={handleGenerate}
           disabled={generating}
           className="shrink-0 bg-[#101820] hover:bg-[#1e2d3d] disabled:opacity-50 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors"
         >
-          {generating ? '⟳ Gerando...' : '✨ Gerar conteúdo de hoje'}
+          {generating ? '⟳ Gerando...' : '✨ Gerar novo lote'}
         </button>
       </div>
 
       {genMsg && (
         <p className={`text-sm font-medium px-4 py-2.5 rounded-xl ${
-          genMsg.startsWith('✓') ? 'text-emerald-700 bg-emerald-50' :
-          genMsg.startsWith('✗') ? 'text-red-700 bg-red-50' :
-          'text-amber-700 bg-amber-50'
+          genMsg.startsWith('✓') ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'
         }`}>
           {genMsg}
         </p>
       )}
 
-      {/* Today */}
-      {todayPosts.length > 0 ? (
-        <div>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Hoje</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {todayPosts.map((post) => (
-              <PostCard key={post.id} post={post} onUpdate={updatePost} />
-            ))}
-          </div>
-        </div>
-      ) : (
+      {/* Timeline of batches */}
+      {batches.length === 0 ? (
         <div className="text-center py-16 border-2 border-dashed border-gray-200 rounded-2xl">
           <p className="text-5xl mb-4">📭</p>
-          <p className="font-medium text-gray-700">Nenhum conteúdo gerado hoje.</p>
-          <p className="text-sm text-gray-400 mt-1">Clique em <strong className="text-[#101820]">Gerar conteúdo de hoje</strong> para começar.</p>
+          <p className="font-medium text-gray-700">Nenhum conteúdo gerado ainda.</p>
+          <p className="text-sm text-gray-400 mt-1">Clique em <strong className="text-[#101820]">Gerar novo lote</strong> para começar.</p>
         </div>
-      )}
-
-      {/* History */}
-      {historyPosts.length > 0 && (
-        <div>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Histórico</p>
-          <div className="space-y-2">
-            {historyPosts.map((post) => (
-              <div key={post.id} className="bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center justify-between gap-4 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <span>{PLATFORM_ICONS[post.platform]}</span>
-                  <div>
-                    <p className="text-sm font-medium text-[#101820]">{PLATFORM_LABELS[post.platform]}</p>
-                    <p className="text-xs text-gray-400">{post.theme_title}</p>
+      ) : (
+        <div className="space-y-10">
+          {batches.map((batch, i) => {
+            const batchPending = batch.posts.filter((p) => p.status === 'pending').length
+            const batchPosted = batch.posts.filter((p) => p.status === 'posted').length
+            return (
+              <div key={i}>
+                {/* Batch header */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-[#101820]">{formatBatchLabel(batch.batchTime)}</span>
+                      {i === 0 && <span className="text-xs bg-[#101820] text-white px-2 py-0.5 rounded-full">Mais recente</span>}
+                    </div>
+                    <span className="text-xs text-[#8D6E63] mt-0.5">{batch.theme}</span>
+                    <div className="flex gap-3 mt-0.5">
+                      {batchPending > 0 && <span className="text-xs text-amber-600">{batchPending} pendente{batchPending > 1 ? 's' : ''}</span>}
+                      {batchPosted > 0 && <span className="text-xs text-emerald-600">{batchPosted} publicado{batchPosted > 1 ? 's' : ''}</span>}
+                    </div>
                   </div>
+                  <div className="flex-1 h-px bg-gray-200 ml-2" />
                 </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-xs text-gray-400">{new Date(post.created_at).toLocaleDateString('pt-BR')}</span>
-                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_STYLE[post.status] ?? STATUS_STYLE.pending}`}>
-                    {STATUS_LABEL[post.status] ?? post.status}
-                  </span>
+                {/* Batch cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {batch.posts.map((post) => (
+                    <PostCard key={post.id} post={post} onUpdate={updatePost} />
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
+            )
+          })}
         </div>
       )}
     </div>
