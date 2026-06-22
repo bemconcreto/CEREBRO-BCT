@@ -24,17 +24,11 @@ async function loadManrope(weight: number): Promise<ArrayBuffer | null> {
   }
 }
 
-// Strip emoji and non-Latin chars that may break Satori
-function safeText(str: string): string {
-  return str.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}]/gu, '').trim()
-}
-
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams
   const bg = sp.get('bg') ?? 'dark'
-  const line1 = safeText(sp.get('line1') ?? '')
-  const line2 = safeText(sp.get('line2') ?? 'Bem Concreto Token.')
-  const emoji = sp.get('emoji') ?? '🏢'
+  const line1 = (sp.get('line1') ?? '').replace(/[^\w\sÀ-ÿ.,!?'"-]/g, '').trim()
+  const line2 = (sp.get('line2') ?? 'Bem Concreto Token.').replace(/[^\w\sÀ-ÿ.,!?'"-]/g, '').trim()
 
   const [lightFont, boldFont] = await Promise.all([loadManrope(300), loadManrope(800)])
 
@@ -46,24 +40,10 @@ export async function GET(req: NextRequest) {
   const bgColor = isDark ? '#101820' : '#d9d9d6'
   const line1Color = isDark ? '#d9d9d6' : '#7a5d53'
   const line2Color = isDark ? '#7a5d53' : '#101820'
-  const pillBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)'
-  const pillBorder = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)'
-  const pillColor = isDark ? '#c8c8c5' : '#4c3b34'
-  const glowColor = isDark
-    ? 'rgba(122,93,83,0.4)'
-    : 'rgba(122,93,83,0.12)'
+  const ff = fonts.length > 0 ? 'Manrope' : 'sans-serif'
 
   const totalLen = (line1 + ' ' + line2).length
   const fontSize = totalLen < 18 ? 100 : totalLen < 28 ? 84 : 70
-  const ff = fonts.length > 0 ? 'Manrope' : 'sans-serif'
-
-  // Map common emoji to a text label shown above headline
-  const emojiLabels: Record<string, string> = {
-    '🏢': 'IMÓVEL', '🏠': 'IMÓVEL', '🏗': 'OBRA', '💰': 'CAPITAL',
-    '📈': 'RETORNO', '🌱': 'CRESCIMENTO', '🔒': 'SEGURANÇA', '⚖️': 'JURÍDICO',
-    '🏛': 'ESTRUTURA', '🌐': 'BLOCKCHAIN', '💎': 'TOKEN', '🤝': 'PARCERIA',
-  }
-  const iconLabel = emojiLabels[emoji] ?? 'BEM'
 
   return new ImageResponse(
     (
@@ -74,144 +54,72 @@ export async function GET(req: NextRequest) {
           backgroundColor: bgColor,
           display: 'flex',
           flexDirection: 'column',
-          padding: '80px',
-          fontFamily: ff,
+          justifyContent: 'center',
           position: 'relative',
+          paddingLeft: 80,
+          paddingRight: 80,
+          paddingTop: 80,
+          paddingBottom: 80,
         }}
       >
-        {/* Glow top-right */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            width: '65%',
-            height: '65%',
-            backgroundImage: `radial-gradient(ellipse at top right, ${glowColor} 0%, transparent 70%)`,
-          }}
-        />
-        {/* Glow bottom-left (dark only) */}
-        {isDark && (
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              width: '45%',
-              height: '45%',
-              backgroundImage: 'radial-gradient(ellipse at bottom left, rgba(122,93,83,0.2) 0%, transparent 70%)',
-            }}
-          />
-        )}
-
-        {/* Icon label top-left */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: isDark ? 'rgba(122,93,83,0.25)' : 'rgba(122,93,83,0.15)',
-            borderRadius: 12,
-            paddingTop: 10,
-            paddingBottom: 10,
-            paddingLeft: 20,
-            paddingRight: 20,
-            alignSelf: 'flex-start',
-            position: 'relative',
-          }}
-        >
-          <span
-            style={{
-              fontSize: 18,
-              fontWeight: 700,
-              letterSpacing: '3px',
-              color: '#7a5d53',
-              fontFamily: ff,
-            }}
-          >
-            {iconLabel}
-          </span>
-        </div>
-
-        {/* Headline */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            flexGrow: 1,
-            justifyContent: 'center',
-            position: 'relative',
-            marginTop: '-20px',
-          }}
-        >
-          {line1.length > 0 && (
-            <div
-              style={{
-                fontSize,
-                fontWeight: 300,
-                color: line1Color,
-                lineHeight: 1.12,
-                letterSpacing: '-2px',
-                fontFamily: ff,
-              }}
-            >
-              {line1}
-            </div>
-          )}
+        {line1.length > 0 && (
           <div
             style={{
               fontSize,
-              fontWeight: 800,
-              color: line2Color,
-              lineHeight: 1.12,
+              fontWeight: 300,
+              color: line1Color,
+              lineHeight: 1.15,
               letterSpacing: '-2px',
               fontFamily: ff,
             }}
           >
-            {line2}
+            {line1}
           </div>
-        </div>
-
-        {/* Bottom: pill + hexagon */}
+        )}
         <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            position: 'relative',
+            fontSize,
+            fontWeight: 800,
+            color: line2Color,
+            lineHeight: 1.15,
+            letterSpacing: '-2px',
+            fontFamily: ff,
           }}
         >
-          <div
-            style={{
-              backgroundColor: pillBg,
-              border: `1px solid ${pillBorder}`,
-              borderRadius: 100,
-              paddingTop: 14,
-              paddingBottom: 14,
-              paddingLeft: 32,
-              paddingRight: 32,
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            <span style={{ fontSize: 22, color: pillColor, fontFamily: ff }}>
-              arraste e saiba mais  ▷
-            </span>
-          </div>
+          {line2}
+        </div>
 
-          {/* Hexagon BC logo */}
-          <svg width="92" height="92" viewBox="0 0 92 92" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="46,4 86,26 86,66 46,88 6,66 6,26" fill="#7a5d53" />
-            <text
-              x="46"
-              y="57"
-              textAnchor="middle"
-              fill="#d9d9d6"
-              fontSize="25"
-              fontWeight="bold"
-            >
-              BC
-            </text>
+        {/* CTA pill */}
+        <div
+          style={{
+            marginTop: 60,
+            alignSelf: 'flex-start',
+            borderRadius: 100,
+            paddingTop: 14,
+            paddingBottom: 14,
+            paddingLeft: 32,
+            paddingRight: 32,
+            border: `1px solid ${isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)'}`,
+            display: 'flex',
+          }}
+        >
+          <span style={{ fontSize: 22, color: isDark ? '#c8c8c5' : '#4c3b34', fontFamily: ff }}>
+            arraste e saiba mais  &#9657;
+          </span>
+        </div>
+
+        {/* Logo bottom right */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 70,
+            right: 70,
+            display: 'flex',
+          }}
+        >
+          <svg width="80" height="80" viewBox="0 0 80 80">
+            <polygon points="40,3 75,22 75,58 40,77 5,58 5,22" fill="#7a5d53" />
+            <text x="40" y="50" textAnchor="middle" fill="#d9d9d6" fontSize="22" fontWeight="bold">BC</text>
           </svg>
         </div>
       </div>
