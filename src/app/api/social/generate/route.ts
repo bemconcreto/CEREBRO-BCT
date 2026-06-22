@@ -7,10 +7,10 @@ export const maxDuration = 60
 
 function buildSlideUrl(baseUrl: string, slide: Record<string, string>, fallbackTitle: string): string {
   const params = new URLSearchParams({
-    bg: slide.bg ?? 'dark',
-    line1: slide.line1 ?? '',
-    line2: slide.line2 ?? fallbackTitle,
-    emoji: slide.emoji ?? '🏢',
+    bg:     slide.bg     ?? 'dark',
+    layout: slide.layout ?? 'headline',
+    line1:  slide.line1  ?? '',
+    line2:  slide.line2  ?? fallbackTitle,
   })
   return `${baseUrl}/api/og/slide?${params.toString()}`
 }

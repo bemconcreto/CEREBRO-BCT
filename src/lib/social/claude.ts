@@ -55,19 +55,19 @@ Retorne APENAS um JSON válido com esta estrutura exata:
     "caption": "legenda completa com emojis, máximo 2200 caracteres, quebras de linha, CTA no final",
     "hashtags": ["array", "com", "20", "hashtags", "sem", "o", "simbolo", "#"],
     "slide": {
-      "bg": "dark ou light — alterne entre posts, prefira dark",
-      "line1": "2 a 4 palavras leves — prefixo da frase, ex: 'Não é' / 'É' / 'Invista em'",
-      "line2": "2 a 4 palavras em negrito — frase de impacto terminando com ponto, ex: 'promessa de dinheiro fácil.' / 'ativo real.'",
-      "emoji": "1 emoji relevante ao tema do post"
+      "bg": "ESCOLHA UM: 'dark' (fundo azul escuro #101820) | 'light' (fundo cinza claro) | 'terracota' (fundo terracota #7a5d53) — VARIE entre posts, não repita o mesmo bg sempre",
+      "layout": "ESCOLHA UM: 'headline' (texto centralizado clássico) | 'statement' (texto mega grande, 1 frase poderosa que ocupa quase tudo) | 'split' (painel esquerdo texto + painel direito colorido com logo) — escolha o layout que melhor representa o tema visualmente",
+      "line1": "para 'headline'/'split': 2-4 palavras leves (prefixo/contexto). para 'statement': pode ser vazio ou 1-2 palavras. SEJA CRIATIVO — não use sempre 'Cada imóvel tem'",
+      "line2": "frase de impacto, máx 4-5 palavras em negrito, terminando com ponto. VARIE as construções: pode ser uma pergunta, uma afirmação curta, um número, uma promessa"
     }
   },
   "facebook": {
     "text": "post completo para Facebook, tom mais conversacional, pode ser mais longo, com link no final: app.bemconcreto.com",
     "slide": {
-      "bg": "dark ou light — use o oposto do Instagram",
-      "line1": "2 a 4 palavras leves",
-      "line2": "2 a 4 palavras em negrito com ponto final",
-      "emoji": "1 emoji relevante"
+      "bg": "ESCOLHA diferente do Instagram — se Instagram usou 'dark', use 'light' ou 'terracota'",
+      "layout": "ESCOLHA diferente do Instagram — varie os layouts entre plataformas",
+      "line1": "2-4 palavras leves ou vazio",
+      "line2": "frase de impacto diferente do Instagram, máx 5 palavras com ponto"
     }
   },
   "telegram": {
