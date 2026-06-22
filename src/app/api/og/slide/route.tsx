@@ -1,26 +1,15 @@
 import { ImageResponse } from 'next/og'
 import type { NextRequest } from 'next/server'
+import fs from 'fs'
+import path from 'path'
 
-export const maxDuration = 30
+export const maxDuration = 10
 
-async function loadManrope(weight: number): Promise<ArrayBuffer | null> {
+function loadLocalFont(filename: string): ArrayBuffer | null {
   try {
-    const css = await fetch(
-      `https://fonts.googleapis.com/css2?family=Manrope:wght@${weight}&display=swap`,
-      {
-        headers: {
-          'User-Agent':
-            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        },
-      }
-    ).then((r) => r.text())
-
-    const matches = [...css.matchAll(/src: url\((https:\/\/fonts\.gstatic\.com[^)]+\.woff2)\)/g)]
-    if (!matches.length) return null
-    const url = matches[matches.length - 1][1]
-    const res = await fetch(url)
-    if (!res.ok) return null
-    return res.arrayBuffer()
+    const fontPath = path.join(process.cwd(), 'public', 'fonts', filename)
+    const buf = fs.readFileSync(fontPath)
+    return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer
   } catch {
     return null
   }
@@ -33,12 +22,13 @@ export async function GET(req: NextRequest) {
   const line1 = clean(sp.get('line1') ?? '')
   const line2 = clean(sp.get('line2') ?? 'Bem Concreto Token.')
 
-  const [lightFont, boldFont] = await Promise.all([loadManrope(300), loadManrope(800)])
-  const hasFont = !!(lightFont && boldFont)
+  const lightFontData = loadLocalFont('Manrope-Light.woff2')
+  const boldFontData = loadLocalFont('Manrope-ExtraBold.woff2')
+  const hasFont = !!(lightFontData && boldFontData)
 
   const fonts: { name: string; data: ArrayBuffer; weight: 300 | 800; style: 'normal' }[] = []
-  if (lightFont) fonts.push({ name: 'Manrope', data: lightFont, weight: 300, style: 'normal' })
-  if (boldFont) fonts.push({ name: 'Manrope', data: boldFont, weight: 800, style: 'normal' })
+  if (lightFontData) fonts.push({ name: 'Manrope', data: lightFontData, weight: 300, style: 'normal' })
+  if (boldFontData) fonts.push({ name: 'Manrope', data: boldFontData, weight: 800, style: 'normal' })
 
   const isDark = bg === 'dark'
   const bgColor = isDark ? '#101820' : '#d9d9d6'
@@ -52,7 +42,7 @@ export async function GET(req: NextRequest) {
   const totalLen = (line1 + ' ' + line2).length
   const fontSize = totalLen < 16 ? 108 : totalLen < 24 ? 92 : totalLen < 32 ? 76 : 64
 
-  try { return new ImageResponse(
+  return new ImageResponse(
     (
       <div
         style={{
@@ -79,11 +69,27 @@ export async function GET(req: NextRequest) {
         {/* Center — headline */}
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           {line1.length > 0 && (
-            <div style={{ display: 'flex', fontSize, fontWeight: 300, color: line1Color, lineHeight: 1.1 }}>
+            <div
+              style={{
+                display: 'flex',
+                fontSize,
+                fontWeight: 300,
+                color: line1Color,
+                lineHeight: 1.1,
+              }}
+            >
               {line1}
             </div>
           )}
-          <div style={{ display: 'flex', fontSize, fontWeight: 800, color: line2Color, lineHeight: 1.1 }}>
+          <div
+            style={{
+              display: 'flex',
+              fontSize,
+              fontWeight: 800,
+              color: line2Color,
+              lineHeight: 1.1,
+            }}
+          >
             {line2}
           </div>
         </div>
@@ -134,7 +140,5 @@ export async function GET(req: NextRequest) {
       height: 1080,
       fonts: fonts.length > 0 ? fonts : undefined,
     }
-  ) } catch (err) {
-    return Response.json({ error: String(err), hasFont }, { status: 500 })
-  }
+  )
 }
