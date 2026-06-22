@@ -1,11 +1,11 @@
 import { ImageResponse } from 'next/og'
 import type { NextRequest } from 'next/server'
 
-export const runtime = 'edge'
+// Node.js runtime — more compatible with next/og than edge
+export const maxDuration = 30
 
 async function loadManrope(weight: number): Promise<ArrayBuffer | null> {
   try {
-    // Fetch CSS from Google Fonts to get the actual CDN URL dynamically
     const cssRes = await fetch(
       `https://fonts.googleapis.com/css2?family=Manrope:wght@${weight}&display=swap`,
       {
@@ -17,11 +17,8 @@ async function loadManrope(weight: number): Promise<ArrayBuffer | null> {
     )
     if (!cssRes.ok) return null
     const css = await cssRes.text()
-
-    // Extract the first woff2 URL (latin subset)
     const match = css.match(/src: url\((https:\/\/fonts\.gstatic\.com[^)]+\.woff2)\)/)
     if (!match?.[1]) return null
-
     const fontRes = await fetch(match[1])
     if (!fontRes.ok) return null
     return fontRes.arrayBuffer()
@@ -33,7 +30,6 @@ async function loadManrope(weight: number): Promise<ArrayBuffer | null> {
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams
   const bg = sp.get('bg') ?? 'dark'
-  // Strip emojis and keep only printable latin chars
   const clean = (s: string) => s.replace(/[^\x20-\x7EÀ-ɏ]/g, '').trim()
   const line1 = clean(sp.get('line1') ?? '')
   const line2 = clean(sp.get('line2') ?? 'Bem Concreto Token.')
@@ -58,77 +54,68 @@ export async function GET(req: NextRequest) {
     (
       <div
         style={{
-          width: 1080,
-          height: 1080,
-          backgroundColor: bgColor,
           display: 'flex',
           flexDirection: 'column',
-          paddingTop: 80,
-          paddingBottom: 80,
-          paddingLeft: 80,
-          paddingRight: 80,
+          width: '100%',
+          height: '100%',
+          backgroundColor: bgColor,
+          padding: '80px',
         }}
       >
-        {/* Debug: font status indicator */}
+        {/* Font status badge */}
         <div
           style={{
             display: 'flex',
             backgroundColor: hasFont ? '#7a5d53' : '#cc0000',
-            borderRadius: 8,
-            paddingTop: 8,
-            paddingBottom: 8,
-            paddingLeft: 16,
-            paddingRight: 16,
+            borderRadius: '8px',
+            padding: '8px 16px',
+            marginBottom: '40px',
             alignSelf: 'flex-start',
-            marginBottom: 40,
           }}
         >
-          <span style={{ color: 'white', fontSize: 20 }}>
-            {hasFont ? 'MANROPE OK' : 'NO FONT'}
-          </span>
+          <div style={{ display: 'flex', color: 'white', fontSize: 20, fontFamily: ff }}>
+            {hasFont ? 'MANROPE OK' : 'NO FONT — FALLBACK'}
+          </div>
         </div>
 
         {/* Headline */}
-        <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'center' }}>
           {line1.length > 0 && (
-            <div style={{ fontSize, fontWeight: 300, color: line1Color, lineHeight: 1.15, fontFamily: ff }}>
+            <div style={{ display: 'flex', fontSize, fontWeight: 300, color: line1Color, lineHeight: 1.15, fontFamily: ff }}>
               {line1}
             </div>
           )}
-          <div style={{ fontSize, fontWeight: 800, color: line2Color, lineHeight: 1.15, fontFamily: ff }}>
+          <div style={{ display: 'flex', fontSize, fontWeight: 800, color: line2Color, lineHeight: 1.15, fontFamily: ff }}>
             {line2}
           </div>
         </div>
 
-        {/* Bottom */}
+        {/* Bottom row */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div
             style={{
               display: 'flex',
-              borderRadius: 100,
-              paddingTop: 14,
-              paddingBottom: 14,
-              paddingLeft: 32,
-              paddingRight: 32,
+              borderRadius: '100px',
+              padding: '14px 32px',
               border: `1px solid ${isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)'}`,
             }}
           >
-            <span style={{ color: isDark ? '#c8c8c5' : '#4c3b34', fontSize: 22, fontFamily: ff }}>
+            <div style={{ display: 'flex', color: isDark ? '#c8c8c5' : '#4c3b34', fontSize: 22, fontFamily: ff }}>
               arraste e saiba mais
-            </span>
+            </div>
           </div>
           <div
             style={{
               display: 'flex',
-              width: 80,
-              height: 80,
+              width: '80px',
+              height: '80px',
               backgroundColor: '#7a5d53',
-              borderRadius: 8,
+              borderRadius: '8px',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <span style={{ color: '#d9d9d6', fontSize: 28, fontWeight: 800, fontFamily: ff }}>BC</span>
+            <div style={{ display: 'flex', color: '#d9d9d6', fontSize: 28, fontWeight: 800, fontFamily: ff }}>BC</div>
           </div>
         </div>
       </div>
