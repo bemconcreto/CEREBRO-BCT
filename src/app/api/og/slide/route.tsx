@@ -3,20 +3,27 @@ import type { NextRequest } from 'next/server'
 
 export const runtime = 'edge'
 
-async function loadManrope(weight: number): Promise<ArrayBuffer> {
-  const css = await fetch(
-    `https://fonts.googleapis.com/css2?family=Manrope:wght@${weight}&display=swap`,
-    {
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      },
-    }
-  ).then((r) => r.text())
+async function loadManrope(weight: number): Promise<ArrayBuffer | null> {
+  try {
+    const css = await fetch(
+      `https://fonts.googleapis.com/css2?family=Manrope:wght@${weight}&display=swap`,
+      {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        },
+      }
+    ).then((r) => r.text())
 
-  const match = css.match(/src: url\(([^)]+\.woff2)\)/)
-  if (!match?.[1]) throw new Error(`Manrope ${weight} not found in Google Fonts CSS`)
-  return fetch(match[1]).then((r) => r.arrayBuffer())
+    const match = css.match(/src: url\(([^)]+\.woff2)\)/)
+    if (!match?.[1]) return null
+
+    const res = await fetch(match[1])
+    if (!res.ok) return null
+    return res.arrayBuffer()
+  } catch {
+    return null
+  }
 }
 
 export async function GET(req: NextRequest) {
@@ -27,6 +34,10 @@ export async function GET(req: NextRequest) {
   const emoji = sp.get('emoji') ?? '🏢'
 
   const [lightFont, boldFont] = await Promise.all([loadManrope(300), loadManrope(800)])
+
+  const fonts: { name: string; data: ArrayBuffer; weight: 300 | 800; style: 'normal' }[] = []
+  if (lightFont) fonts.push({ name: 'Manrope', data: lightFont, weight: 300, style: 'normal' })
+  if (boldFont) fonts.push({ name: 'Manrope', data: boldFont, weight: 800, style: 'normal' })
 
   const isDark = bg === 'dark'
   const bgColor = isDark ? '#101820' : '#d9d9d6'
@@ -52,11 +63,11 @@ export async function GET(req: NextRequest) {
           display: 'flex',
           flexDirection: 'column',
           padding: '80px',
-          fontFamily: 'Manrope',
+          fontFamily: fonts.length > 0 ? 'Manrope' : 'sans-serif',
           position: 'relative',
         }}
       >
-        {/* Gradient glow overlay */}
+        {/* Gradient glow layer */}
         <div
           style={{
             position: 'absolute',
@@ -81,12 +92,12 @@ export async function GET(req: NextRequest) {
           />
         )}
 
-        {/* Emoji icon — top left */}
+        {/* Emoji icon top-left */}
         <div style={{ fontSize: 68, lineHeight: 1, position: 'relative', zIndex: 1 }}>
           {emoji}
         </div>
 
-        {/* Main headline */}
+        {/* Headline */}
         <div
           style={{
             display: 'flex',
@@ -106,7 +117,7 @@ export async function GET(req: NextRequest) {
                 color: line1Color,
                 lineHeight: 1.12,
                 letterSpacing: '-2px',
-                fontFamily: 'Manrope',
+                fontFamily: fonts.length > 0 ? 'Manrope' : 'sans-serif',
               }}
             >
               {line1}
@@ -119,7 +130,7 @@ export async function GET(req: NextRequest) {
               color: line2Color,
               lineHeight: 1.12,
               letterSpacing: '-2px',
-              fontFamily: 'Manrope',
+              fontFamily: fonts.length > 0 ? 'Manrope' : 'sans-serif',
             }}
           >
             {line2}
@@ -148,55 +159,41 @@ export async function GET(req: NextRequest) {
               display: 'flex',
               alignItems: 'center',
               letterSpacing: '0.2px',
-              fontFamily: 'Manrope',
-              fontWeight: 400,
             }}
           >
             arraste e saiba mais  ▷
           </div>
 
-          {/* Hexagon BC logo */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 92,
-              height: 92,
-              position: 'relative',
-            }}
+          {/* Hexagon BC logo — SVG inline */}
+          <svg
+            width="92"
+            height="92"
+            viewBox="0 0 92 92"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                background: '#7a5d53',
-                clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
-              }}
+            <polygon
+              points="46,4 86,26 86,66 46,88 6,66 6,26"
+              fill="#7a5d53"
             />
-            <div
-              style={{
-                position: 'relative',
-                color: '#d9d9d6',
-                fontSize: 28,
-                fontWeight: 800,
-                letterSpacing: '-1px',
-                fontFamily: 'Manrope',
-              }}
+            <text
+              x="46"
+              y="56"
+              textAnchor="middle"
+              fill="#d9d9d6"
+              fontSize="24"
+              fontWeight="bold"
+              fontFamily="sans-serif"
             >
               BC
-            </div>
-          </div>
+            </text>
+          </svg>
         </div>
       </div>
     ),
     {
       width: 1080,
       height: 1080,
-      fonts: [
-        { name: 'Manrope', data: lightFont, weight: 300, style: 'normal' },
-        { name: 'Manrope', data: boldFont, weight: 800, style: 'normal' },
-      ],
+      fonts: fonts.length > 0 ? fonts : undefined,
     }
   )
 }
