@@ -10,7 +10,7 @@ export async function savePendingPosts(
   themeId: number,
   themeTitle: string,
   platformContents: Record<string, Record<string, unknown>>,
-  imageUrl?: string
+  platformImageUrls?: Record<string, string>
 ): Promise<void> {
   const platforms: SocialPlatform[] = ['telegram', 'discord', 'instagram', 'facebook', 'youtube', 'tiktok']
   const manualPlatforms: SocialPlatform[] = ['youtube', 'tiktok']
@@ -20,7 +20,7 @@ export async function savePendingPosts(
     theme_title: themeTitle,
     platform,
     content: platformContents[platform] ?? {},
-    image_url: imageUrl ?? null,
+    image_url: platformImageUrls?.[platform] ?? null,
     status: (manualPlatforms.includes(platform) ? 'manual' : 'pending') as SocialStatus,
     requires_manual: manualPlatforms.includes(platform),
   }))

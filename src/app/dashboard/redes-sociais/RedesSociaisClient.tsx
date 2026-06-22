@@ -77,16 +77,41 @@ function CopyButton({ text, label }: { text: string; label: string }) {
 }
 
 function ImageBlock({ url }: { url: string }) {
+  const [loaded, setLoaded] = useState(false)
+  const [error, setError] = useState(false)
+  const isOgSlide = url.includes('/api/og/slide')
   return (
     <div className="space-y-2">
-      <img src={url} alt="" className="w-full h-36 object-cover rounded-xl" />
+      <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-gray-100">
+        {!loaded && !error && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-gray-400">
+            <div className="w-6 h-6 border-2 border-gray-300 border-t-[#7a5d53] rounded-full animate-spin" />
+            <span className="text-xs">{isOgSlide ? 'Gerando criativo...' : 'Carregando...'}</span>
+          </div>
+        )}
+        {error && (
+          <div className="absolute inset-0 flex items-center justify-center text-xs text-gray-400">
+            Erro ao carregar imagem
+          </div>
+        )}
+        <img
+          src={url}
+          alt=""
+          className={`w-full h-full object-contain transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+          onLoad={() => setLoaded(true)}
+          onError={() => setError(true)}
+        />
+      </div>
+      {isOgSlide && loaded && (
+        <p className="text-xs text-[#7a5d53] text-center font-medium">✦ Criativo gerado — identidade visual BEM</p>
+      )}
       <a
         href={url}
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center justify-center gap-1.5 text-xs text-gray-600 hover:text-[#101820] bg-gray-100 hover:bg-gray-200 rounded-lg py-1.5 transition-colors font-medium"
       >
-        ⬇ Baixar imagem
+        ⬇ Baixar imagem (1080×1080)
       </a>
     </div>
   )

@@ -53,10 +53,22 @@ Retorne APENAS um JSON válido com esta estrutura exata:
 {
   "instagram": {
     "caption": "legenda completa com emojis, máximo 2200 caracteres, quebras de linha, CTA no final",
-    "hashtags": ["array", "com", "20", "hashtags", "sem", "o", "simbolo", "#"]
+    "hashtags": ["array", "com", "20", "hashtags", "sem", "o", "simbolo", "#"],
+    "slide": {
+      "bg": "dark ou light — alterne entre posts, prefira dark",
+      "line1": "2 a 4 palavras leves — prefixo da frase, ex: 'Não é' / 'É' / 'Invista em'",
+      "line2": "2 a 4 palavras em negrito — frase de impacto terminando com ponto, ex: 'promessa de dinheiro fácil.' / 'ativo real.'",
+      "emoji": "1 emoji relevante ao tema do post"
+    }
   },
   "facebook": {
-    "text": "post completo para Facebook, tom mais conversacional, pode ser mais longo, com link no final: app.bemconcreto.com"
+    "text": "post completo para Facebook, tom mais conversacional, pode ser mais longo, com link no final: app.bemconcreto.com",
+    "slide": {
+      "bg": "dark ou light — use o oposto do Instagram",
+      "line1": "2 a 4 palavras leves",
+      "line2": "2 a 4 palavras em negrito com ponto final",
+      "emoji": "1 emoji relevante"
+    }
   },
   "telegram": {
     "text": "mensagem completa em HTML do Telegram. Use <b>negrito</b>, <i>itálico</i>, emojis. Tom educativo e direto. Sem hashtags."

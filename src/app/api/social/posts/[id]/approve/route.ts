@@ -29,7 +29,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       result = await publishToInstagram(
         String(c.caption ?? ''),
         (c.hashtags as string[]) ?? [],
-        post.image_url ?? 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg'
+        post.image_url ?? ''
       )
       break
     case 'facebook':
