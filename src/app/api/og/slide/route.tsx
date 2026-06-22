@@ -22,8 +22,8 @@ export async function GET(req: NextRequest) {
   const line1 = clean(sp.get('line1') ?? '')
   const line2 = clean(sp.get('line2') ?? 'Bem Concreto Token.')
 
-  const lightFontData = loadLocalFont('Manrope-Light.woff2')
-  const boldFontData = loadLocalFont('Manrope-ExtraBold.woff2')
+  const lightFontData = loadLocalFont('Manrope-Light.ttf')
+  const boldFontData = loadLocalFont('Manrope-ExtraBold.ttf')
   const hasFont = !!(lightFontData && boldFontData)
 
   const fonts: { name: string; data: ArrayBuffer; weight: 300 | 800; style: 'normal' }[] = []
