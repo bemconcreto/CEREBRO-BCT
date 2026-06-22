@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
   const totalLen = (line1 + ' ' + line2).length
   const fontSize = totalLen < 16 ? 108 : totalLen < 24 ? 92 : totalLen < 32 ? 76 : 64
 
-  return new ImageResponse(
+  try { return new ImageResponse(
     (
       <div
         style={{
@@ -100,13 +100,13 @@ export async function GET(req: NextRequest) {
               paddingBottom: 16,
               paddingLeft: 36,
               paddingRight: 36,
-              borderWidth: 1.5,
+              borderWidth: 2,
               borderStyle: 'solid',
               borderColor: pillBorderColor,
             }}
           >
             <div style={{ display: 'flex', color: pillTextColor, fontSize: 24, fontWeight: 300 }}>
-              arraste e saiba mais  ›
+              arraste e saiba mais  &gt;
             </div>
           </div>
 
@@ -134,5 +134,7 @@ export async function GET(req: NextRequest) {
       height: 1080,
       fonts: fonts.length > 0 ? fonts : undefined,
     }
-  )
+  ) } catch (err) {
+    return Response.json({ error: String(err), hasFont }, { status: 500 })
+  }
 }
