@@ -4,8 +4,12 @@ import { createServerClient } from "@supabase/ssr";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Rotas públicas: login e leitura pública do hub (preço/imóveis)
-  if (pathname.startsWith("/login") || pathname.startsWith("/api/public")) {
+  // Rotas públicas: login, leitura pública do hub (preço/imóveis) e geração de imagens OG
+  if (
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/api/public") ||
+    pathname.startsWith("/api/og")
+  ) {
     return NextResponse.next();
   }
 
