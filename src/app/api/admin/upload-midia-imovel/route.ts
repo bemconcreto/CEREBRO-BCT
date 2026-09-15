@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
-    const tipo = String(formData.get("tipo") ?? "foto"); // "foto" | "documento"
+    const tipo = String(formData.get("tipo") ?? "foto").replace(/[^a-z0-9-]/gi, ""); // "foto" | "documento"
     const slug = String(formData.get("slug") ?? "geral").replace(/[^a-z0-9-]/gi, "");
 
     if (!file) {

@@ -1,42 +1,67 @@
 import { NextResponse } from "next/server";
 import { supabaseConsultor } from "@/lib/supabaseConsultor";
 
+/**
+ * SQL PENDENTE (rodar uma vez no SQL Editor do Supabase do CONSULTOR-BCT,
+ * projeto pmmdbisorjjpsfjbpqht) — function usada pelo .rpc() abaixo para
+ * decrementar saldoPendente do corretor de forma atômica (increment relativo
+ * no próprio Postgres, sem race condition de leitura-depois-escrita):
+ *
+ * CREATE OR REPLACE FUNCTION decrementar_saldo_pendente_corretor(
+ *   corretor_id_input integer,
+ *   valor_input double precision
+ * ) RETURNS void AS $$
+ * BEGIN
+ *   UPDATE "Corretor"
+ *   SET "saldoPendente" = GREATEST(0, "saldoPendente" - valor_input)
+ *   WHERE id = corretor_id_input;
+ * END;
+ * $$ LANGUAGE plpgsql;
+ */
+
 export async function POST(req: Request) {
   try {
     const { id } = await req.json();
     if (!id) return NextResponse.json({ ok: false, error: "ID inválido" }, { status: 400 });
 
-    // Buscar o saque
-    const { data: saque, error: saqueErr } = await supabaseConsultor
-      .from("Saque")
-      .select("*, corretor:Corretor(id, saldoPendente)")
-      .eq("id", id)
-      .single();
-
-    if (saqueErr || !saque) {
-      return NextResponse.json({ ok: false, error: "Saque não encontrado" }, { status: 404 });
-    }
-
-    if (saque.status !== "pendente") {
-      return NextResponse.json({ ok: false, error: "Saque já foi processado" }, { status: 400 });
-    }
-
-    // Marcar saque como pago
-    const { error: updateSaqueErr } = await supabaseConsultor
+    // Trava atômica: só marca "pago" se ainda estiver "pendente" (mesma técnica
+    // de src/app/api/saques/enviar/route.ts). Isso impede que duplo clique ou
+    // requisições concorrentes paguem a mesma comissão duas vezes — apenas a
+    // primeira chamada a chegar aqui encontra a linha em "pendente" e a atualiza;
+    // a segunda não encontra nenhuma linha e falha com segurança.
+    const { data: saque, error: updateSaqueErr } = await supabaseConsultor
       .from("Saque")
       .update({ status: "pago" })
-      .eq("id", id);
+      .eq("id", id)
+      .eq("status", "pendente")
+      .select("id, valor, corretorId")
+      .single();
 
-    if (updateSaqueErr) throw updateSaqueErr;
+    if (updateSaqueErr || !saque) {
+      return NextResponse.json(
+        { ok: false, error: "Saque não encontrado ou já foi processado" },
+        { status: 400 }
+      );
+    }
 
-    // Decrementar saldoPendente do corretor
-    const corretorId = saque.corretor?.id ?? saque.corretorId;
-    const novoSaldoPendente = Math.max(0, (saque.corretor?.saldoPendente ?? 0) - Number(saque.valor));
+    // Decrementar saldoPendente do corretor de forma atômica via RPC (increment
+    // relativo no banco, não leitura-depois-escrita no Node). Requer a function
+    // "decrementar_saldo_pendente_corretor" no Supabase do CONSULTOR-BCT
+    // (pmmdbisorjjpsfjbpqht) — ver SQL em CLAUDE.md / comentário no repo.
+    // Como a trava acima já garante que só uma chamada chega até aqui por saque,
+    // não há duplicação mesmo que o decremento falhe isoladamente; o erro fica
+    // logado para conferência manual do saldoPendente.
+    const { error: decrementErr } = await supabaseConsultor.rpc(
+      "decrementar_saldo_pendente_corretor",
+      { corretor_id_input: saque.corretorId, valor_input: Number(saque.valor) }
+    );
 
-    await supabaseConsultor
-      .from("Corretor")
-      .update({ saldoPendente: novoSaldoPendente })
-      .eq("id", corretorId);
+    if (decrementErr) {
+      console.error(
+        "ERRO ao decrementar saldoPendente do corretor (saque já marcado como pago, id=" + id + "):",
+        decrementErr
+      );
+    }
 
     return NextResponse.json({ ok: true });
   } catch (err) {

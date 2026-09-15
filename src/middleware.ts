@@ -4,11 +4,16 @@ import { createServerClient } from "@supabase/ssr";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Rotas públicas: login, leitura pública do hub (preço/imóveis) e geração de imagens OG
+  // Rotas públicas: login, leitura pública do hub (preço/imóveis), geração de
+  // imagens OG e o cron do Vercel (protegido internamente por CRON_SECRET
+  // dentro do próprio handler — ver src/app/api/cron/social/route.ts; sem essa
+  // liberação aqui o middleware barrava a chamada do Vercel com 401 antes mesmo
+  // de chegar nessa checagem).
   if (
     pathname.startsWith("/login") ||
     pathname.startsWith("/api/public") ||
-    pathname.startsWith("/api/og")
+    pathname.startsWith("/api/og") ||
+    pathname.startsWith("/api/cron")
   ) {
     return NextResponse.next();
   }

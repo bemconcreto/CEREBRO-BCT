@@ -6,9 +6,10 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const imoveis = await prisma.imovel.findMany({
-      where: { status: "ativo" },
-    });
+    const [imoveis, holding] = await Promise.all([
+      prisma.imovel.findMany({ where: { status: "ativo" } }),
+      prisma.holding.findFirst(),
+    ]);
 
     const totalImoveis = imoveis.length;
 
@@ -23,11 +24,11 @@ export async function GET() {
     );
 
     const rentabilidade = valorMercado - valorInvestido;
-    const patrimonioHolding = valorMercado;
+    const patrimonioTotal = Number(holding?.patrimonioTotal ?? 0);
 
     const percentualHolding =
-      patrimonioHolding > 0
-        ? ((valorMercado / patrimonioHolding) * 100).toFixed(2)
+      patrimonioTotal > 0
+        ? ((valorMercado / patrimonioTotal) * 100).toFixed(2)
         : "0";
 
     return NextResponse.json({

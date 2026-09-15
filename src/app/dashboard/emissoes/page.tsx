@@ -19,13 +19,26 @@ type Overview = {
   faturamentoTotal: number;
 };
 
+type Preco = {
+  precoUsd: number;
+  precoBrl: number;
+};
+
 export default function EmissoesPage() {
   const [data, setData] = useState<Overview | null>(null);
+  const [preco, setPreco] = useState<Preco | null>(null);
 
   useEffect(() => {
     fetch("/api/dashboard/overview")
       .then((r) => r.json())
       .then(setData);
+
+    fetch("/api/preco")
+      .then((r) => r.json())
+      .then((p) => {
+        if (p.error) return;
+        setPreco(p);
+      });
   }, []);
 
   const format = (v: number) =>
@@ -35,6 +48,11 @@ export default function EmissoesPage() {
     });
 
   const faturamento = data?.faturamentoTotal || 0;
+
+  // Preço atual do BEM (fonte única: TokenPrice via /api/preco) — não hardcoded.
+  const precoAtual = preco
+    ? `${format(preco.precoBrl)} (US$ ${preco.precoUsd.toFixed(2)})`
+    : "—";
 
   return (
     <div className="flex flex-col gap-8">
@@ -85,7 +103,7 @@ export default function EmissoesPage() {
               <Linha
                 emissao="1ª Emissão"
                 supply="10.000.000"
-                preco="R$ 0,50"
+                preco={precoAtual}
                 captado={data ? format(faturamento) : "—"}
                 vendido="—"
                 status="Ativa"
