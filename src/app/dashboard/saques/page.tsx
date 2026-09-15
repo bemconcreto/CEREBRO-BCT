@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Clock, CheckCircle2, XCircle, Send } from "lucide-react";
+import { ArrowUpRight, Clock, Loader2, CheckCircle2, XCircle, Send } from "lucide-react";
 
 interface Saque {
   id: string;
   user_id: string;
   amount: number;
   wallet_address: string;
-  status: "pending" | "completed" | "rejected";
+  status: "pending" | "processing" | "completed" | "rejected";
   tx_hash: string | null;
   created_at: string;
 }
@@ -22,9 +22,10 @@ function fmtDate(s: string) {
 }
 
 const STATUS_CONFIG = {
-  pending:   { label: "Pendente",   icon: Clock,        color: "text-amber-500",  bg: "bg-amber-50 border-amber-200" },
-  completed: { label: "Enviado",    icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50 border-emerald-200" },
-  rejected:  { label: "Rejeitado",  icon: XCircle,      color: "text-red-500",    bg: "bg-red-50 border-red-200" },
+  pending:    { label: "Pendente",     icon: Clock,        color: "text-amber-500",  bg: "bg-amber-50 border-amber-200" },
+  processing: { label: "Processando…", icon: Loader2,      color: "text-blue-500",   bg: "bg-blue-50 border-blue-200" },
+  completed:  { label: "Enviado",      icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50 border-emerald-200" },
+  rejected:   { label: "Rejeitado",    icon: XCircle,      color: "text-red-500",    bg: "bg-red-50 border-red-200" },
 };
 
 export default function SaquesPage() {
