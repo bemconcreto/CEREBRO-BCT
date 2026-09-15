@@ -28,6 +28,7 @@ import {
 /* ================= TYPES ================= */
 
 type DocumentoItem = { nome: string; url: string };
+type ImagemItem = { url: string; legenda?: string };
 
 type Documentos = {
   matricula?: DocumentoItem[];
@@ -48,6 +49,7 @@ type Imovel = {
   percentualPool: number;
   status?: string;
   imagemUrl?: string | null;
+  imagens?: ImagemItem[] | null;
   roiProjetado?: number | null;
   roiRealizado?: number | null;
   dataAquisicao?: string | null;
@@ -251,6 +253,7 @@ function ModalImovel({
     percentualPool: initial?.percentualPool || 0,
     status: initial?.status || "ativo",
     imagemUrl: initial?.imagemUrl || "",
+    imagens: initial?.imagens || [],
     roiProjetado: initial?.roiProjetado ?? null,
     roiRealizado: initial?.roiRealizado ?? null,
     dataAquisicao: toDateInputValue(initial?.dataAquisicao),
@@ -281,7 +284,11 @@ function ModalImovel({
             />
           </div>
 
-          <Campo label="Imagem (URL)" value={data.imagemUrl || ""} onChange={(v) => setData({ ...data, imagemUrl: v })} />
+          <GaleriaEditor
+            slug={data.slug || "imovel"}
+            value={data.imagens || []}
+            onChange={(v) => setData({ ...data, imagens: v })}
+          />
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <CampoNumero
@@ -346,6 +353,7 @@ function ModalImovel({
           />
 
           <DocumentosEditor
+            slug={data.slug || "imovel"}
             value={data.documentos || {}}
             onChange={(v) => setData({ ...data, documentos: v })}
           />
@@ -360,15 +368,107 @@ function ModalImovel({
   );
 }
 
-/* ================= DOCUMENTOS ================= */
+/* ================= UPLOAD (compartilhado) ================= */
 
-function DocumentosEditor({
+async function uploadArquivo(file: File, tipo: "foto" | "documento", slug: string) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("tipo", tipo);
+  formData.append("slug", slug);
+
+  const res = await fetch("/api/admin/upload-midia-imovel", {
+    method: "POST",
+    body: formData,
+  });
+  const json = await res.json();
+
+  if (!json.ok) throw new Error(json.error || "Erro ao enviar arquivo");
+  return json as { ok: true; url: string; nome: string };
+}
+
+/* ================= GALERIA DE FOTOS ================= */
+
+function GaleriaEditor({
+  slug,
   value,
   onChange,
 }: {
+  slug: string;
+  value: ImagemItem[];
+  onChange: (v: ImagemItem[]) => void;
+}) {
+  const [enviando, setEnviando] = useState(false);
+  const [erro, setErro] = useState("");
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    setEnviando(true);
+    setErro("");
+    try {
+      const { url } = await uploadArquivo(file, "foto", slug);
+      onChange([...value, { url }]);
+    } catch (err: any) {
+      setErro(err.message || "Erro ao enviar foto");
+    }
+    setEnviando(false);
+  }
+
+  function remover(idx: number) {
+    const novo = [...value];
+    novo.splice(idx, 1);
+    onChange(novo);
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <Label>Fotos {value.length > 0 && <span className="text-[#9CA3AF] font-normal">(a primeira é a capa)</span>}</Label>
+
+      {erro && <p className="text-xs text-destructive">{erro}</p>}
+
+      <div className="flex flex-wrap gap-2">
+        {value.map((img, idx) => (
+          <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-[#E5E7EB] group">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={img.url} alt="" className="w-full h-full object-cover" />
+            {idx === 0 && (
+              <span className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[9px] text-center py-0.5">Capa</span>
+            )}
+            <button
+              type="button"
+              onClick={() => remover(idx)}
+              className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </div>
+        ))}
+
+        <label className="w-20 h-20 rounded-lg border border-dashed border-[#E5E7EB] flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-[#CBA35C] transition-colors text-[#9CA3AF] hover:text-[#CBA35C]">
+          <Plus className="w-4 h-4" />
+          <span className="text-[9px] font-semibold">{enviando ? "Enviando..." : "Adicionar"}</span>
+          <input type="file" accept="image/*" className="hidden" onChange={handleFile} disabled={enviando} />
+        </label>
+      </div>
+    </div>
+  );
+}
+
+/* ================= DOCUMENTOS ================= */
+
+function DocumentosEditor({
+  slug,
+  value,
+  onChange,
+}: {
+  slug: string;
   value: Documentos;
   onChange: (v: Documentos) => void;
 }) {
+  const [enviandoCat, setEnviandoCat] = useState<string | null>(null);
+
   function addItem(cat: keyof Documentos) {
     const items = value[cat] || [];
     onChange({ ...value, [cat]: [...items, { nome: "", url: "" }] });
@@ -384,6 +484,19 @@ function DocumentosEditor({
     const items = [...(value[cat] || [])];
     items.splice(idx, 1);
     onChange({ ...value, [cat]: items });
+  }
+
+  async function handleUpload(cat: keyof Documentos, idx: number, file: File) {
+    setEnviandoCat(`${cat}-${idx}`);
+    try {
+      const { url, nome } = await uploadArquivo(file, "documento", slug);
+      const items = [...(value[cat] || [])];
+      items[idx] = { nome: items[idx]?.nome || nome, url };
+      onChange({ ...value, [cat]: items });
+    } catch (err: any) {
+      alert(err.message || "Erro ao enviar documento");
+    }
+    setEnviandoCat(null);
   }
 
   return (
@@ -410,11 +523,26 @@ function DocumentosEditor({
                   className="flex-1"
                 />
                 <Input
-                  placeholder="URL"
+                  placeholder="URL (ou envie um arquivo →)"
                   value={item.url}
                   onChange={(e) => updateItem(key, idx, "url", e.target.value)}
                   className="flex-[2]"
                 />
+                <label className="shrink-0">
+                  <Button type="button" variant="outline" size="sm" asChild>
+                    <span>{enviandoCat === `${key}-${idx}` ? "Enviando..." : "Upload"}</span>
+                  </Button>
+                  <input
+                    type="file"
+                    className="hidden"
+                    disabled={enviandoCat === `${key}-${idx}`}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      e.target.value = "";
+                      if (file) handleUpload(key, idx, file);
+                    }}
+                  />
+                </label>
                 <Button
                   type="button"
                   variant="ghost"

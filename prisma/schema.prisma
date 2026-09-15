@@ -42,6 +42,7 @@ model Imovel {
   status         String
 
   imagemUrl        String?
+  imagens          Json?
   roiProjetado     Float?
   roiRealizado     Float?
   dataAquisicao    DateTime?

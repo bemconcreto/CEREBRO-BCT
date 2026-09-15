@@ -52,6 +52,7 @@ export async function POST(req: Request) {
         percentualPool: Number(body.percentualPool ?? 0),
         status: "ativo",
         imagemUrl: body.imagemUrl ?? null,
+        imagens: body.imagens ?? undefined,
         roiProjetado: body.roiProjetado != null ? Number(body.roiProjetado) : null,
         roiRealizado: body.roiRealizado != null ? Number(body.roiRealizado) : null,
         dataAquisicao: body.dataAquisicao ? new Date(body.dataAquisicao) : null,

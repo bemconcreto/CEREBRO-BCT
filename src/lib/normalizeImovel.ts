@@ -6,6 +6,7 @@
 export function normalizeImovel(imovel: any) {
   const valorCompra = Number(imovel.valorCompra ?? 0);
   const valorMercado = Number(imovel.valorMercado ?? 0);
+  const imagens = Array.isArray(imovel.imagens) ? imovel.imagens : [];
 
   return {
     id: imovel.id,
@@ -19,7 +20,10 @@ export function normalizeImovel(imovel: any) {
       valorCompra > 0 ? (valorMercado - valorCompra) / valorCompra : 0,
     percentualPool: Number(imovel.percentualPool ?? 0),
     status: imovel.status,
-    imagemUrl: imovel.imagemUrl ?? null,
+    // Capa: primeira foto da galeria, com fallback pro campo antigo (imóveis
+    // cadastrados antes da galeria existir, que só têm imagemUrl).
+    imagemUrl: imagens[0]?.url ?? imovel.imagemUrl ?? null,
+    imagens,
     roiProjetado: imovel.roiProjetado ?? null,
     roiRealizado: imovel.roiRealizado ?? null,
     dataAquisicao: imovel.dataAquisicao ?? null,

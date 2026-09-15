@@ -27,6 +27,7 @@ export async function PUT(req: Request) {
     if (body.percentualPool !== undefined) data.percentualPool = Number(body.percentualPool);
     if (body.status !== undefined) data.status = body.status;
     if (body.imagemUrl !== undefined) data.imagemUrl = body.imagemUrl;
+    if (body.imagens !== undefined) data.imagens = body.imagens;
     if (body.roiProjetado !== undefined)
       data.roiProjetado = body.roiProjetado != null ? Number(body.roiProjetado) : null;
     if (body.roiRealizado !== undefined)
