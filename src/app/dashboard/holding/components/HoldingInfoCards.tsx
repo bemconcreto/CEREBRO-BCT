@@ -7,7 +7,7 @@ export default function HoldingInfoCards() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card title="Razão Social" value="Bem Concreto Empreendimentos" />
-        <Card title="CNPJ" value="00.000.000/0001-00" highlight />
+        <Card title="CNPJ" value="37.566.745/0001-22" highlight />
         <Card title="Status" value="ATIVA" />
 
         <Card title="Fundação" value="12/03/2023" />
